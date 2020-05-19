@@ -14,11 +14,7 @@ from erlab_coat.preprocessing import remove_county_word, get_cdc_data, parse_erl
 from erlab_coat.meta import preprocessings, state_abbreviations
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
     ICUBeds, CovidHospitalizations, Mortality, LandAndWater
-
-
-def get_as_datetime(x):
-    es = [int(e) for e in x.split('-')]
-    return datetime(year=es[0], month=es[1], day=es[2])
+from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime
 
 
 def preprocess_collection_for_database(path):
@@ -202,6 +198,30 @@ def preprocess_collection_for_database(path):
 
     google_mobility = prepare_google_mobility_data(os.path.join(path, 'resolution/county/google_mobility.csv'))
 
+    cases = floatify_df(cases)
+    google_mobility = floatify_df(google_mobility)
+    covid_hospitalizations_df = floatify_df(covid_hospitalizations_df)
+    influenza_activity_level_df = floatify_df(influenza_activity_level_df)
+    diversity = floatify_df(diversity)
+    icu_beds = floatify_df(icu_beds)
+    election = floatify_df(election)
+    land_and_water = floatify_df(land_and_water)
+    census_full = floatify_df(census_full)
+    mortality = floatify_df(mortality)
+
+    cases.dropna(inplace=True)
+    google_mobility.dropna(inplace=True)
+    covid_hospitalizations_df.dropna(inplace=True)
+    influenza_activity_level_df.dropna(inplace=True)
+    diversity.dropna(inplace=True)
+    icu_beds.dropna(inplace=True)
+    election.dropna(inplace=True)
+    land_and_water.dropna(inplace=True)
+    census_full.dropna(inplace=True)
+    mortality.dropna(inplace=True)
+
+
+
     return cases, google_mobility, covid_hospitalizations_df, influenza_activity_level_df, diversity, icu_beds, election, land_and_water, census_full, mortality
 
 
@@ -242,6 +262,7 @@ def populate_database_with_glance(
 
     for i in tqdm(range(covid_hospitalizations_df.shape[0])):
         row = covid_hospitalizations_df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         try:
             row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
         except:
@@ -259,6 +280,8 @@ def populate_database_with_glance(
 
     for i in tqdm(range(influenza_activity_level_df.shape[0])):
         row = influenza_activity_level_df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+
         try:
             row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
         except:
@@ -275,6 +298,7 @@ def populate_database_with_glance(
 
     for i in tqdm(range(diversity.shape[0])):
         row = diversity.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         items.append(Diversity(**row))
     variable_to_entity = update_variable_to_entity(variable_to_entity, row, Diversity)
 
@@ -287,6 +311,7 @@ def populate_database_with_glance(
 
     for i in tqdm(range(icu_beds.shape[0])):
         row = icu_beds.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         items.append(ICUBeds(**row))
     variable_to_entity = update_variable_to_entity(variable_to_entity, row, ICUBeds)
 
@@ -296,9 +321,9 @@ def populate_database_with_glance(
     # ---
     items = []
     print("election...\n")
-
     for i in tqdm(range(election.shape[0])):
         row = election.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         items.append(Election(**row))
     variable_to_entity = update_variable_to_entity(variable_to_entity, row, Election)
 
@@ -310,6 +335,7 @@ def populate_database_with_glance(
 
     for i in tqdm(range(land_and_water.shape[0])):
         row = land_and_water.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         items.append(LandAndWater(**row))
     variable_to_entity = update_variable_to_entity(variable_to_entity, row, LandAndWater)
 
@@ -322,6 +348,7 @@ def populate_database_with_glance(
 
     for i in tqdm(range(census.shape[0])):
         row = census.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         items.append(Census(**row))
     variable_to_entity = update_variable_to_entity(variable_to_entity, row, Census)
 
@@ -334,6 +361,7 @@ def populate_database_with_glance(
 
     for i in tqdm(range(mortality.shape[0])):
         row = mortality.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         items.append(Mortality(**row))
     variable_to_entity = update_variable_to_entity(variable_to_entity, row, Mortality)
 
@@ -346,6 +374,7 @@ def populate_database_with_glance(
 
     for i in tqdm(range(google_mobility.shape[0])):
         row = google_mobility.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         try:
             row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
         except:
@@ -361,6 +390,7 @@ def populate_database_with_glance(
     print("cases...\n")
     for i in tqdm(range(cases.shape[0])):
         row = cases.iloc[i, :].to_dict()
+        row = floatify_dict(row)
         try:
             row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
         except:

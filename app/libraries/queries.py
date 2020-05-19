@@ -9,6 +9,7 @@ from erlab_coat.preprocessing import interpolate_by_location, add_location_to_df
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
     ICUBeds, CovidHospitalizations, Mortality, LandAndWater
 from app import application_directory
+from app.libraries.utilities import floatify_df
 
 
 def get_df_for_variable_query(db, var, variable2entity, county_filter, state_filter):
@@ -49,6 +50,7 @@ def get_data_for_query(
         resolution = 'county',
         interpolate = True
 ):
+    # todo: make it quicker
     accepted_counties = [e.strip() for e in county_filter.split(',') if not e == '']
 
     for i in range(len(accepted_counties)):
@@ -83,11 +85,7 @@ def get_data_for_query(
         output_df = interpolate_by_location(output_df, max_day=max_day)
         output_df.drop(columns=['location', 'day_of_the_year'], inplace=True)
 
-    for col in output_df.columns.tolist():
-        if col in ['county', 'state', 'day_of_the_year', 'location', 'confirmed_date']:
-            continue
-        else:
-            output_df[col] = output_df[col].astype(float)
+    output_df = floatify_df(output_df)
 
     if resolution == 'state':
         try:
@@ -100,6 +98,7 @@ def get_data_for_query(
 
 
 def process_for_d3_json(df):
+    # todo: make it quicker
     df = add_day_of_the_year_to_cases_table(df)
     df = add_location_to_df(df)
     output = list()
