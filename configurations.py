@@ -18,7 +18,8 @@ class Configurations(object):
     the database parameters especially where the SQLite database is to be saved.
     """
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'visierra_is_secret_Key23'
-    SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(base_directory, 'visierra_database.db')
+    #SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(base_directory, 'visierra_database.db')
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://RDSUSERNAME:RDSPASSWORD@RDSENDPOINT:3306/RDS_DB'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ADMINS = ['shayan@cs.ucla.edu']
     LANGUAGES = ['en']
