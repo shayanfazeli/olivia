@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+    <title>COVID-19 Tweets</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
+          crossorigin="anonymous">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+    <!--<![endif]-->
+
+
+    <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{{url_for('static', filename='css/layouts/blog-old-ie.css')}}">
+        <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/blog.css') }}">
+    <!--<![endif]-->
+</head>
+<body>
+
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">COVID-19 Tweet Analytics</h1>
+            <h2 class="brand-tagline">A glance at the most recent tweets on the novel coronavirus</h2>
+        </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+        <div>
+            <!-- A wrapper for all the blog posts -->
+            <div class="posts">
+                <!-- A single blog post -->
+                <section class="post">
+                    <header class="post-header">
+
+
+                        <h2 class="post-title">Tweets of the Day</h2>
+
+                        <p class="post-meta">
+                            By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
+                        </p>
+                    </header>
+
+                    <h3>COVID-19 Tweets of Today in One Glance</h3>
+                <div align="center">
+                    <img width="60%" border=5 src="{{ url_for('static', filename="img/tweets_cloud.png") }}"></div>
+
+                    <h2> Tweets </h2>
+                    <div>
+                        {%  for i in range(100) %}
+                            <div align="center">
+                            <blockquote class="twitter-tweet"><p lang="en" dir="ltr">{{ df.loc[i, "Tweet"] }}</p>&mdash; {{df.loc[i, "Name"]}} <a href="https://twitter.com/{{df.loc[i, 'Username']}}/status/{{df.loc[i, 'ID']}}?ref_src=twsrc%5Etfw">{{ df.loc[i, "Created at"] }}</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                </section>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>
