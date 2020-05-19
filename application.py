@@ -16,7 +16,8 @@ app = create_app()
 
 @app.route('/favicon.ico')
 def favicon():
-    return send_from_directory(os.path.join(application_directory, 'static'), 'favicon.ico',mimetype='image/vnd.microsoft.icon')
+    return send_from_directory(os.path.join(application_directory, 'static'), 'favicon.ico',
+                               mimetype='image/vnd.microsoft.icon')
 
 
 @app.shell_context_processor
@@ -28,4 +29,9 @@ def make_shell_context():
     ----------
     The output of this method is a `Dict` type including the entities and methods to be used in shell
     """
-    return {'db': db, 'Election': Election, 'populate_database_with_glance': populate_database_with_glance, 'get_data_for_query': get_data_for_query}
+    return {'db': db, 'Election': Election, 'populate_database_with_glance': populate_database_with_glance,
+            'get_data_for_query': get_data_for_query}
+
+
+if __name__ == "__main__":
+    app.run()
