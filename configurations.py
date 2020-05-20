@@ -19,7 +19,15 @@ class Configurations(object):
     """
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'visierra_is_secret_Key23'
     #SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(base_directory, 'visierra_database.db')
-    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://RDSUSERNAME:RDSPASSWORD@RDSENDPOINT:3306/RDS_DB'
+    # SQLALCHEMY_DATABASE_URI = 'mysql+auroradataapi://olivia:erlab391@olivia-db.cluster-ce8jt52rjpad.us-west-2.rds.amazonaws.com:3306/olivia'
+
+    SQLALCHEMY_DATABASE_URI = 'postgresql://oliviaadmin:erlab391@oliviadb.ce8jt52rjpad.us-west-2.rds.amazonaws.com/olivia'
+    # SQLALCHEMY_ENGINE_OPTIONS = {
+    #     "connect_args": {
+    #         "aurora_cluster_arn": "arn:aws:rds:us-west-2:014105426514:cluster:oliviadb",
+    #         "secret_arn": "arn:aws:secretsmanager:us-west-2:014105426514:secret:oliviadb"
+    #     }
+    # }
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     ADMINS = ['shayan@cs.ucla.edu']
     LANGUAGES = ['en']

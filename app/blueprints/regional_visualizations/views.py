@@ -47,6 +47,7 @@ def regional_visualization():
             y_var=label2description[y_var],
             color_var=label2description[color_var],
             size_var=label2description[size_var],
+            show_labels=show_labels
         )
 
     return render_template(

@@ -16,4 +16,5 @@ pandas==0.25.3
 us==2.0.1
 flask-s3==0.3.3
 boto3==1.13.11
+sqlalchemy-aurora-data-api==0.2.0
 email_validator

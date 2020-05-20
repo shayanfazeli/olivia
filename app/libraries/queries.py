@@ -14,6 +14,7 @@ from app.libraries.utilities import floatify_df
 
 def get_df_for_variable_query(db, var, variable2entity, county_filter, state_filter):
     entity = variable2entity[var]
+    #todo: fix for those without county
     if 'confirmed_date' in dir(entity):
         columns = ['county', 'state', 'confirmed_date']
     else:
