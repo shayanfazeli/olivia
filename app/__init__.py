@@ -4,12 +4,10 @@ __credits__ = 'ER Lab - CS@UCLA'
 
 # libraries
 import os
-from flask import Flask, url_for, render_template
+from flask import Flask, render_template
 from configurations import Configurations
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-from flask_security import SQLAlchemyUserDatastore
-from flask_admin import helpers as admin_helpers
 from flask_mail import Mail
 
 
