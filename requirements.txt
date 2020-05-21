@@ -1,5 +1,6 @@
 flask_security==3.0.0
-dotenv==0.10.3
+python-dotenv===0.13.0
+tqdm==4.32.2
 werkzeug==0.16.1
 flask-sqlalchemy==2.4.1
 flask_migrate==2.5.2
