@@ -26,6 +26,11 @@ def get_df_for_variable_query(db, var, variable2entity, county_filter, state_fil
     if 'county' in dir(entity):
         columns = ['county'] + columns
 
+    mobility_related_renames = dict()
+    if var.startswith('google_mobility_'):
+        mobility_related_renames[var[len('google_mobility_'):]] = var
+        var = var[len('google_mobility_'):]
+
     attributes = [getattr(entity, e) for e in columns + [var]]
 
     df = db.session.query(*attributes)  # .add_columns(*attributes)
@@ -35,6 +40,8 @@ def get_df_for_variable_query(db, var, variable2entity, county_filter, state_fil
         df = df.filter(entity.state.in_(state_filter))
 
     df = pandas.DataFrame(data=df.all(), columns=columns + [var])
+    df.rename(mobility_related_renames, axis=1, inplace=True, errors='raise')
+
     return df
 
 

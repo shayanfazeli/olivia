@@ -407,12 +407,12 @@ class CoatPlotD3Form(FlaskForm):
     size_choices.sort(key=operator.itemgetter(1))
 
     y_choices = [
-        ('normalized_confirmed_count_cumsum', 'Population Normalized Cases to Date'),
-        ('normalized_death_count_cumsum', 'Population Normalized Deaths to Date'),
         ('confirmed_count_cumsum_per100k', 'Cumulative Confirmed COVID-19 Cases per 100,000'),
         ('death_count_cumsum_per100k', 'Cumulative Deaths due to COVID-19 per 100,000'),
+        ('recovered_count_cumsum_per100k', 'Cumulative Recoveries from COVID-19 per 100,000'),
         ('confirmed_count_cumsum', 'Cumulative Confirmed COVID-19 Cases'),
-        ('death_count_cumsum', 'Cumulative Deaths due to COVID-19')
+        ('death_count_cumsum', 'Cumulative Deaths due to COVID-19'),
+        ('recovered_count_cumsum', 'Cumulative Recoveries from COVID-19'),
     ]
     y_choices = fetch_latest_descriptions_for_choices(y_choices)
     y_choices.sort(key=operator.itemgetter(1))

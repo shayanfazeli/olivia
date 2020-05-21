@@ -14,7 +14,7 @@ from erlab_coat.preprocessing import remove_county_word, get_cdc_data, parse_erl
 from erlab_coat.meta import preprocessings, state_abbreviations
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
     ICUBeds, CovidHospitalizations, Mortality, LandAndWater
-from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime
+from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime, get_doty_as_datetime
 
 
 def preprocess_collection_for_database(path):
@@ -198,6 +198,21 @@ def preprocess_collection_for_database(path):
 
     google_mobility = prepare_google_mobility_data(os.path.join(path, 'resolution/county/google_mobility.csv'))
 
+    google_mobility.rename(
+        {
+            'google_mobility_retail_and_recreation_percent_change_from_baseline': 'retail_and_recreation_percent_change_from_baseline',
+            'google_mobility_grocery_and_pharmacy_percent_change_from_baseline': 'grocery_and_pharmacy_percent_change_from_baseline',
+            'google_mobility_parks_percent_change_from_baseline': 'parks_percent_change_from_baseline',
+            'google_mobility_transit_stations_percent_change_from_baseline': 'transit_stations_percent_change_from_baseline',
+            'google_mobility_workplaces_percent_change_from_baseline': 'workplaces_percent_change_from_baseline',
+            'google_mobility_residential_percent_change_from_baseline': 'residential_percent_change_from_baseline',
+            'day_of_the_year': 'confirmed_date'
+        }, axis=1, inplace=True
+    )
+
+    google_mobility['confirmed_date'] = google_mobility['confirmed_date'].apply(get_doty_as_datetime)
+    google_mobility = google_mobility.groupby(['state', 'county', 'confirmed_date']).mean().reset_index()
+
     cases = floatify_df(cases)
     google_mobility = floatify_df(google_mobility)
     covid_hospitalizations_df = floatify_df(covid_hospitalizations_df)
@@ -246,6 +261,8 @@ def update_variable_to_entity(variable_to_entity, row, entity):
         if m not in variable_to_entity.keys():
             variable_to_entity[m] = entity
         else:
+            if m == 'compliance':
+                continue
             raise Exception("already assigned to an entity: {} -> {} / not to {}".format(m, variable_to_entity[m], entity))
     return variable_to_entity
 
@@ -256,158 +273,148 @@ def populate_database_with_glance(
     cases, google_mobility, covid_hospitalizations_df, influenza_activity_level_df, diversity, icu_beds, election, land_and_water, census, mortality, state_restaurants = preprocess_collection_for_database(
         path)
 
-    path_to_variable_to_entity = os.path.join(application_directory, '../warehouse/variable_to_entity.pkl')
+    variable_to_entity = dict()
 
-    if os.path.isfile(path_to_variable_to_entity):
-        with open(path_to_variable_to_entity, 'rb') as handle:
-            variable_to_entity = pickle.load(handle)
-    else:
-        variable_to_entity = dict()
+    # ---
+    items = []
+    print("covid_hospitalizations_df...\n")
 
-    # # ---
-    # items = []
-    # print("covid_hospitalizations_df...\n")
-    #
-    # for i in tqdm(range(covid_hospitalizations_df.shape[0])):
-    #     row = covid_hospitalizations_df.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     try:
-    #         row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
-    #     except:
-    #         continue
-    #     items.append(CovidHospitalizations(**row))
-    #
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, CovidHospitalizations)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("influenza_activity_level_df...\n")
-    #
-    # for i in tqdm(range(influenza_activity_level_df.shape[0])):
-    #     row = influenza_activity_level_df.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #
-    #     try:
-    #         row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
-    #     except:
-    #         continue
-    #     items.append(InfluenzaActivityLevel(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, InfluenzaActivityLevel)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("diversity...\n")
-    #
-    # for i in tqdm(range(diversity.shape[0])):
-    #     row = diversity.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     items.append(Diversity(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, Diversity)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("icu_beds...\n")
-    #
-    # for i in tqdm(range(icu_beds.shape[0])):
-    #     row = icu_beds.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     items.append(ICUBeds(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, ICUBeds)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("election...\n")
-    # for i in tqdm(range(election.shape[0])):
-    #     row = election.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     items.append(Election(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, Election)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    # # ---
-    # items = []
-    # print("land_and_water...\n")
-    #
-    # for i in tqdm(range(land_and_water.shape[0])):
-    #     row = land_and_water.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     items.append(LandAndWater(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, LandAndWater)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("census...\n")
-    #
-    # for i in tqdm(range(census.shape[0])):
-    #     row = census.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     items.append(Census(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, Census)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("mortality...\n")
-    #
-    # for i in tqdm(range(mortality.shape[0])):
-    #     row = mortality.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     items.append(Mortality(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, Mortality)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("google_mobility...\n")
-    #
-    # for i in tqdm(range(google_mobility.shape[0])):
-    #     row = google_mobility.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     try:
-    #         row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
-    #     except:
-    #         continue
-    #     items.append(GoogleMobility(**row))
+    for i in tqdm(range(covid_hospitalizations_df.shape[0])):
+        row = covid_hospitalizations_df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        try:
+            row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
+        except:
+            continue
+        items.append(CovidHospitalizations(**row))
+
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, CovidHospitalizations)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("influenza_activity_level_df...\n")
+
+    for i in tqdm(range(influenza_activity_level_df.shape[0])):
+        row = influenza_activity_level_df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+
+        try:
+            row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
+        except:
+            continue
+        items.append(InfluenzaActivityLevel(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, InfluenzaActivityLevel)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("diversity...\n")
+
+    for i in tqdm(range(diversity.shape[0])):
+        row = diversity.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(Diversity(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, Diversity)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("icu_beds...\n")
+
+    for i in tqdm(range(icu_beds.shape[0])):
+        row = icu_beds.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(ICUBeds(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, ICUBeds)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("election...\n")
+    for i in tqdm(range(election.shape[0])):
+        row = election.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(Election(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, Election)
+
+    db.session.add_all(items)
+    db.session.commit()
+    # ---
+    items = []
+    print("land_and_water...\n")
+
+    for i in tqdm(range(land_and_water.shape[0])):
+        row = land_and_water.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(LandAndWater(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, LandAndWater)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("census...\n")
+
+    for i in tqdm(range(census.shape[0])):
+        row = census.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(Census(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, Census)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("mortality...\n")
+
+    for i in tqdm(range(mortality.shape[0])):
+        row = mortality.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(Mortality(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, Mortality)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("google_mobility...\n")
+
+    for i in tqdm(range(google_mobility.shape[0])):
+        row = google_mobility.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(GoogleMobility(**row))
     # variable_to_entity = update_variable_to_entity(variable_to_entity, row, GoogleMobility)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
-    #
-    # # ---
-    # items = []
-    # print("cases...\n")
-    # for i in tqdm(range(cases.shape[0])):
-    #     row = cases.iloc[i, :].to_dict()
-    #     row = floatify_dict(row)
-    #     try:
-    #         row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
-    #     except:
-    #         continue
-    #     items.append(Cases(**row))
-    # variable_to_entity = update_variable_to_entity(variable_to_entity, row, Cases)
-    #
-    # db.session.add_all(items)
-    # db.session.commit()
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("cases...\n")
+    for i in tqdm(range(cases.shape[0])):
+        row = cases.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        try:
+            row['confirmed_date'] = get_as_datetime(row['confirmed_date'])
+        except:
+            continue
+        items.append(Cases(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, Cases)
+
+    db.session.add_all(items)
+    db.session.commit()
 
     # ---
     items = []

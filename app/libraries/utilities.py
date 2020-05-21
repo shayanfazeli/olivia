@@ -1,11 +1,16 @@
 import pandas
 import numpy
-from datetime import datetime
+from datetime import datetime, timedelta
 
 
 def get_as_datetime(x):
     es = [int(e) for e in x.split('-')]
     return datetime(year=es[0], month=es[1], day=es[2])
+
+
+def get_doty_as_datetime(x):
+    out = datetime(year=2020, month=1, day=1) + timedelta(days=int(x))
+    return out
 
 
 def floatify_df(df):
