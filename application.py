@@ -4,9 +4,8 @@ __credit__ = ["ER Lab - UCLA"]
 
 from typing import Dict
 import os
-import pandas
 from app.libraries.queries import get_data_for_query
-from app import create_app, db, url_for, application_directory
+from app import create_app, db, application_directory
 from app.libraries.database_manipulation import populate_database_with_glance
 from app.entities import Election
 from flask import redirect, send_from_directory
