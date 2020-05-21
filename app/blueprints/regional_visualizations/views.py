@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from app.blueprints.regional_visualizations.forms import CoatPlotD3Form
-from app.libraries.queries import get_data_for_query, process_for_d3_json
+from app.libraries.queries import get_data_for_query, process_for_d3_json, process_for_d3_json_ultrafast
 from erlab_coat.meta import label2description
 from app import db, application_directory
 
@@ -37,7 +37,7 @@ def regional_visualization():
             interpolate=True
         )
 
-        json_data = process_for_d3_json(df)
+        json_data = process_for_d3_json_ultrafast(df.copy())
 
         return render_template(
             'regional_visualizations/palette.html',

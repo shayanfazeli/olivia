@@ -11,7 +11,8 @@ from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases
     ICUBeds, CovidHospitalizations, Mortality, LandAndWater
 from app import application_directory
 from app.libraries.utilities import floatify_df
-
+import sys
+import time
 
 def get_df_for_variable_query(db, var, variable2entity, county_filter, state_filter):
     entity = variable2entity[var]
@@ -53,6 +54,8 @@ def get_data_for_query(
         interpolate=True
 ):
     # todo: make it quicker
+    print('\nSTART OF QUERY\n', file=sys.stderr)
+    t0 = time.time()
     accepted_counties = [e.strip() for e in county_filter.split(',') if not e == '']
 
     for i in range(len(accepted_counties)):
@@ -76,12 +79,23 @@ def get_data_for_query(
         [var1, var2, var3, var4]
     ]
 
+    t1 = time.time()
+    print("\nqueries received - time spent: {}\n".format(t1 - t0), file=sys.stderr)
+
     output_df = reduce(lambda left, right: special_reduce(left, right), dfs)
+
+    t2 = time.time()
+    print("\nmerged - time spent: {}\n".format(t2-t1), file=sys.stderr)
 
     output_df.confirmed_date = output_df.confirmed_date.apply(lambda x: str(x.date()))
 
     if interpolate:
         output_df = olivia_interpolation(output_df)
+
+    t3 = time.time()
+    print("\ninterpolated - time spent: {}\n".format(t3 - t2), file=sys.stderr)
+
+    output_df = floatify_df(output_df)
 
     if resolution == 'state':
         try:
@@ -90,13 +104,19 @@ def get_data_for_query(
             import pdb
             pdb.set_trace()
 
+
     return output_df
 
 
-def process_for_d3_json(df, df_is_interpolated=True):
-    if not df_is_interpolated:
-        df = add_day_of_the_year_to_cases_table(df)
+def process_for_d3_json(df):
+    print("\n creating json\n")
+    t0 = time.time()
+
+    if not 'location' in df.columns:
         df = add_location_to_df(df)
+
+    if not 'day_of_the_year' in df.columns:
+        df = add_day_of_the_year_to_cases_table(df)
 
     output = list()
     t_var = "day_of_the_year"
@@ -126,5 +146,71 @@ def process_for_d3_json(df, df_is_interpolated=True):
                     tmp[label2description[column]].append([row[t_var], row[column]])
 
         output.append(tmp.copy())
+    t1 = time.time()
+    print("\njson completed: time spent: {}\n".format(t1-t0))
 
     return output
+
+def process_for_d3_json_ultrafast(df):
+    print("\n creating json\n")
+    t0 = time.time()
+
+    if not 'location' in df.columns:
+        df = add_location_to_df(df)
+
+    if not 'day_of_the_year' in df.columns:
+        df = add_day_of_the_year_to_cases_table(df)
+
+    if 'confirmed_date' in df.columns:
+        df.drop(columns=['confirmed_date'], inplace=True)
+
+    if 'Unnamed: 0' in df.columns:
+        df.drop(columns=['Unnamed: 0'], inplace=True)
+
+    t_var = "day_of_the_year"
+    df[t_var] = df[t_var].apply(doty_to_date)
+    df['Name'] = df.location.copy()
+
+    unique_locations = df.location.unique().tolist()
+    output = list()
+    for unique_location in unique_locations:
+        output.append(
+            convert_subdf_to_dict(df[df.location == unique_location].copy(), unique_location)
+        )
+
+    t1 = time.time()
+    print("\njson completed: time spent: {}\n".format(t1-t0))
+
+    return output
+
+
+def convert_subdf_to_dict(sub_df, location):
+    sub_df.drop(columns=['Name'], inplace=True)
+    t_var = "day_of_the_year"
+    rename_dict = dict()
+    for column in sub_df.columns:
+        if column in [t_var]:
+            continue
+        else:
+            rename_dict[column] = label2description[column]
+
+    sub_df.rename(rename_dict, axis=1, errors='raise', inplace=True)
+
+    sub_df = sub_df.to_dict()
+    sub_df = {x: list(sub_df[x].values()) for x in sub_df.keys() if x not in ['Name', 'location']}
+    sub_df = {x: list(zip(sub_df['day_of_the_year'], sub_df[x])) for x in sub_df.keys() if x not in ['Name', 'location', 'day_of_the_year']}
+    sub_df = {x: [list(e) for e in sub_df[x]] for x in sub_df.keys() if
+              x not in ['Name', 'location', 'day_of_the_year']}
+    sub_df['Name'] = location
+    sub_df['location'] = location
+
+    out = dict()
+    out['Name'] = sub_df['Name']
+    out['location'] = sub_df['location']
+    for key in sub_df.keys():
+        if key in ['Name', 'location']:
+            continue
+        else:
+            out[key] = sub_df[key]
+
+    return out
