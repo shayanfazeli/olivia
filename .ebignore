@@ -7,3 +7,5 @@ app/static/recent_tables/df*
 app/erlab_coat
 
 warehouse/erlab_covid19_glance
+
+migration/
