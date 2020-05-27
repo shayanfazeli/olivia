@@ -15,6 +15,7 @@ from erlab_coat.meta import preprocessings, state_abbreviations
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
     ICUBeds, CovidHospitalizations, Mortality, LandAndWater
 from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime, get_doty_as_datetime
+from app.libraries.queries import get_df_for_variable_query
 
 
 def preprocess_collection_for_database(path):
@@ -212,6 +213,9 @@ def preprocess_collection_for_database(path):
 
     google_mobility['confirmed_date'] = google_mobility['confirmed_date'].apply(get_doty_as_datetime)
     google_mobility = google_mobility.groupby(['state', 'county', 'confirmed_date']).mean().reset_index()
+    for column in google_mobility.columns:
+        if column in ['Unnamed: 0', 'level_3']:
+            google_mobility.drop(columns=[column], inplace=True)
 
     cases = floatify_df(cases)
     google_mobility = floatify_df(google_mobility)
@@ -430,3 +434,103 @@ def populate_database_with_glance(
 
     with open(os.path.join(application_directory, '../warehouse/variable_to_entity.pkl'), 'wb') as handle:
         pickle.dump(variable_to_entity, handle)
+
+
+def update_dynamic_tables(path=os.path.abspath(os.path.join(application_directory, '../warehouse/erlab_covid19_glance'))):
+    cases, google_mobility, covid_hospitalizations_df, influenza_activity_level_df, diversity, icu_beds, election, land_and_water, census, mortality, state_restaurants = preprocess_collection_for_database(
+        path)
+
+    print("updating cases...\n")
+    columns = [
+        'state', 'county', 'confirmed_date',
+        'confirmed_count', 'death_count', 'recovered_count',
+        'confirmed_count_cumsum', 'death_count_cumsum', 'recovered_count_cumsum',
+        'confirmed_count_cumsum_per100k', 'death_count_cumsum_per100k', 'recovered_count_cumsum_per100k',
+    ]
+    current_df = pandas.DataFrame(data=db.session.query(
+        Cases.state,
+        Cases.county,
+        Cases.confirmed_date,
+        Cases.confirmed_count,
+        Cases.death_count,
+        Cases.recovered_count,
+        Cases.confirmed_count_cumsum,
+        Cases.death_count_cumsum,
+        Cases.recovered_count_cumsum,
+        Cases.confirmed_count_cumsum_per100k,
+        Cases.death_count_cumsum_per100k,
+        Cases.recovered_count_cumsum_per100k
+    ).all(), columns=columns)
+
+    def alteration1(x):
+        try:
+            return get_as_datetime(x)
+        except Exception as e:
+            return x
+
+    cases['confirmed_date'] = cases['confirmed_date'].apply(alteration1)
+
+    cases_updates = pandas.merge(
+        cases, current_df,
+        on=['county', 'state', 'confirmed_date'],
+        how='outer', indicator=True).query("_merge != 'both'").drop('_merge',axis=1).reset_index(drop=True)
+    to_drop = []
+    rename_dict = dict()
+    for column in cases_updates.columns:
+        if column.endswith('_y'):
+            to_drop.append(column)
+        elif column.endswith('_x'):
+            rename_dict[column] = column[:-2]
+    cases_updates.drop(columns=to_drop, inplace=True)
+    cases_updates.rename(rename_dict, axis=1, inplace=True, errors='raise')
+    cases_updates.dropna(inplace=True)
+
+    items = []
+    for i in tqdm(range(cases_updates.shape[0])):
+        row = cases_updates.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(Cases(**row))
+    db.session.add_all(items)
+    db.session.commit()
+
+    del current_df
+
+    print("updating google_mobility...\n")
+    columns = [
+        'confirmed_date', 'county', 'state', 'retail_and_recreation_percent_change_from_baseline',
+        'grocery_and_pharmacy_percent_change_from_baseline', 'parks_percent_change_from_baseline',
+        'transit_stations_percent_change_from_baseline', 'workplaces_percent_change_from_baseline',
+        'residential_percent_change_from_baseline', 'compliance'
+    ]
+    current_df = pandas.DataFrame(data=db.session.query(
+        GoogleMobility.confirmed_date, GoogleMobility.county, GoogleMobility.state,
+        GoogleMobility.retail_and_recreation_percent_change_from_baseline,
+        GoogleMobility.grocery_and_pharmacy_percent_change_from_baseline,
+        GoogleMobility.parks_percent_change_from_baseline,
+        GoogleMobility.transit_stations_percent_change_from_baseline,
+        GoogleMobility.workplaces_percent_change_from_baseline,
+        GoogleMobility.residential_percent_change_from_baseline,
+        GoogleMobility.compliance
+    ).all(), columns=columns)
+
+    google_mobility_updates = pandas.merge(google_mobility, current_df, on=['county', 'state', 'confirmed_date'], how='outer', indicator=True).query("_merge != 'both'").drop('_merge', axis=1).reset_index(drop=True)
+    to_drop = []
+    rename_dict = dict()
+    for column in google_mobility_updates.columns:
+        if column.endswith('_y'):
+            to_drop.append(column)
+        elif column.endswith('_x'):
+            rename_dict[column] = column[:-2]
+    google_mobility_updates.drop(columns=to_drop, inplace=True)
+    google_mobility_updates.rename(rename_dict, axis=1, inplace=True, errors='raise')
+    google_mobility_updates.dropna(inplace=True)
+
+    items = []
+    for i in tqdm(range(google_mobility_updates.shape[0])):
+        row = google_mobility_updates.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(GoogleMobility(**row))
+    db.session.add_all(items)
+    db.session.commit()
+
+

@@ -6,8 +6,8 @@ from typing import Dict
 import os
 from app.libraries.queries import get_data_for_query
 from app import create_app, db, application_directory
-from app.libraries.database_manipulation import populate_database_with_glance
-from app.entities import Election
+from app.libraries.database_manipulation import populate_database_with_glance, update_dynamic_tables
+from app.entities import Election, GoogleMobility, Cases
 from flask import redirect, send_from_directory
 
 app = create_app()
@@ -28,7 +28,7 @@ def make_shell_context():
     ----------
     The output of this method is a `Dict` type including the entities and methods to be used in shell
     """
-    return {'db': db, 'Election': Election, 'populate_database_with_glance': populate_database_with_glance,
+    return {'db': db, 'Election': Election, 'GoogleMobility': GoogleMobility, 'Cases': Cases, 'populate_database_with_glance': populate_database_with_glance, 'update_dynamic_tables': update_dynamic_tables,
             'get_data_for_query': get_data_for_query}
 
 
