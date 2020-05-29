@@ -13,7 +13,7 @@ from erlab_coat.preprocessing import remove_county_word, get_cdc_data, parse_erl
     add_cumsums_to_cases_table, prepare_google_mobility_data
 from erlab_coat.meta import preprocessings, state_abbreviations
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
-    ICUBeds, CovidHospitalizations, Mortality, LandAndWater
+    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, Alcohol, ObesityAndLife, Diabetes
 from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime, get_doty_as_datetime
 from app.libraries.queries import get_df_for_variable_query
 
@@ -240,8 +240,6 @@ def preprocess_collection_for_database(path):
     mortality.dropna(inplace=True)
 
     state_restaurants = pandas.read_csv(os.path.join(path, 'resolution/state/restaurant_business.csv'))
-
-
 
     return cases, google_mobility, covid_hospitalizations_df, influenza_activity_level_df, diversity, icu_beds, election, land_and_water, census_full, mortality, state_restaurants
 
@@ -534,3 +532,54 @@ def update_dynamic_tables(path=os.path.abspath(os.path.join(application_director
     db.session.commit()
 
 
+def newupdate(path=os.path.abspath(os.path.join(application_directory, '../warehouse/erlab_covid19_glance/resolution/county/healthdata'))):
+    from oliver.data.preparation.healthdata import prepare_healthdata_life_expectancy_physical_activity_and_obesity, \
+        prepare_healthdata_diabetes_table, prepare_healthdata_alcohol_table
+
+    with open(os.path.join(application_directory, '../warehouse/variable_to_entity.pkl'), 'rb') as handle:
+        variable_to_entity = pickle.load(handle)
+
+    alcohol_df = prepare_healthdata_alcohol_table(path)
+    diabetes_df = prepare_healthdata_diabetes_table(path)
+    other_healthdata_df = prepare_healthdata_life_expectancy_physical_activity_and_obesity(path)
+    # ---
+    items = []
+    print("alcohol_df...\n")
+
+    for i in tqdm(range(alcohol_df.shape[0])):
+        row = alcohol_df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(Alcohol(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, Alcohol)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("diabetes_df...\n")
+
+    for i in tqdm(range(diabetes_df.shape[0])):
+        row = diabetes_df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(Diabetes(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, Diabetes)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    # ---
+    items = []
+    print("other_healthdata_df...\n")
+
+    for i in tqdm(range(other_healthdata_df.shape[0])):
+        row = other_healthdata_df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(ObesityAndLife(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, ObesityAndLife)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    with open(os.path.join(application_directory, '../warehouse/variable_to_entity.pkl'), 'wb') as handle:
+        pickle.dump(variable_to_entity, handle)
