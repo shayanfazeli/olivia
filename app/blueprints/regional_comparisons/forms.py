@@ -216,6 +216,8 @@ class RegionalComparisonForm(FlaskForm):
     start_date2 = DateField("Region Group 2 - Start Date", validators=[DataRequired()])
     end_date2 = DateField("Region Group 2 - End Date", validators=[DataRequired()])
     bin_count = SelectField('Bin Count', default=100, choices=[('50', '50'), ('100', '100'), ('1000', '1000')], validators=[])
+    prepare_json = SelectField('Automatic Distribution Report', default='no', choices=[('yes', 'Yes'), ('no', 'No')],
+                            validators=[])
 
     submit = SubmitField('Compare')
 

@@ -143,6 +143,13 @@
                                     <span style="color: red;">[{{ error }}]</span>
                                 {% endfor %}
                             </p>
+                            <p>
+                                {{ form.prepare_json.label }}<br>
+                                {{ form.prepare_json() }}<br>
+                                {% for error in form.prepare_json.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
                             <p>{{ form.submit() }}</p>
                         </form>
                     <p>
