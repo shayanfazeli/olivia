@@ -38,6 +38,8 @@ def create_app(configuration_class: object = Configurations):
     mail.init_app(app=app)
     from app.blueprints.regional_visualizations import regional_visualizations_blueprint
     app.register_blueprint(regional_visualizations_blueprint)
+    from app.blueprints.regional_comparisons import regional_comparisons_blueprint
+    app.register_blueprint(regional_comparisons_blueprint)
     from app.blueprints.contact import contact_blueprint
     app.register_blueprint(contact_blueprint)
     from app.blueprints.tweets import tweets_blueprint

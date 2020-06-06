@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+    <title>ERLab COVID-19 Monitor for US Counties</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
+          crossorigin="anonymous">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+
+    <!--<![endif]-->
+
+
+    <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{{url_for('static', filename='css/layouts/blog-old-ie.css')}}">
+        <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/blog.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/grapher.css') }}">
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.js"></script>
+    <!--<![endif]-->
+</head>
+<body>
+
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">Region Group Comparison</h1>
+            <h2 class="brand-tagline">Regional Characteristic Comparison Palette</h2>
+        </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+        <div>
+            <!-- A wrapper for all the blog posts -->
+            <div class="posts">
+                <!-- A single blog post -->
+                <section class="svg-post">
+                    <header class="post-header">
+
+
+                        <h2 class="post-title">Distribution Monitor</h2>
+
+
+                    </header>
+
+                    <div>
+                        <p>
+                            {% if not feature == '' %}
+                                {#                                    <img class="viscenter" src="{{ url_for('static', filename=output) }}" width="80%"#}
+                                {#                                         height="80%"/>#}
+                                <p>Feature: {{ feature_description }}</p>
+                                <div style="min-width: 1010px; min-height: 513px;">
+                                    <svg id="visual" width="1000" height="500" style="margin: 20px;"/>
+                                </div>
+
+                                {#                                <div><button class="downloadButton" onclick="window.location.href = '{{ url_for('static', filename=download_link) }}';"><i class="fa fa-download"></i>Data</button></div>#}
+
+                            {% else %}
+                                <p class="descriptionEr">Please click plot to continue.</p>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="post-description">
+                        <form action="" method="post" id="submission_form" onsubmit="$('.modal').show();" novalidate>
+                            {{ form.hidden_tag() }}
+                            <p>
+                                {{ form.var.label }}<br>
+                                {{ form.var() }}<br>
+                                {% for error in form.var.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.state_filter1.label }}<br>
+                                {{ form.state_filter1() }}<br>
+                                {% for error in form.state_filter1.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.county_filter1.label }}<br>
+                                {{ form.county_filter1() }}<br>
+                                {% for error in form.county_filter1.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.start_date1.label }}<br>
+                                {{ form.start_date1() }}<br>
+                                {% for error in form.start_date1.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.end_date1.label }}<br>
+                                {{ form.end_date1() }}<br>
+                                {% for error in form.end_date1.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.state_filter2.label }}<br>
+                                {{ form.state_filter2() }}<br>
+                                {% for error in form.state_filter2.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.county_filter2.label }}<br>
+                                {{ form.county_filter2() }}<br>
+                                {% for error in form.county_filter2.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.start_date2.label }}<br>
+                                {{ form.start_date2() }}<br>
+                                {% for error in form.start_date2.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.end_date2.label }}<br>
+                                {{ form.end_date2() }}<br>
+                                {% for error in form.end_date2.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.bin_count.label }}<br>
+                                {{ form.bin_count() }}<br>
+                                {% for error in form.bin_count.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>{{ form.submit() }}</p>
+                        </form>
+                    <p>
+    By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
+                    </p>
+                    </div>
+                    <div class="modal">Generating the results, Please wait...</div>
+                </section>
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <script>
+        data = {{comparison_data | safe}};
+
+        var margin = {top: 10, right: 10, bottom: 50, left: 50},
+            width= 700 - margin.left - margin.right,
+            height= 500 - margin.top - margin.bottom;
+
+        var feature = "{{ feature | safe }}";
+
+        var number_of_bins = {{ bin_count | safe }};
+        function update(data){
+            var svg = d3.select("#visual")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+                var mean_feature_value = d3.mean(data, function(d) { return d[feature]; });
+                var std_feature_value = d3.deviation(data, function(d) { return d[feature]; });
+
+                var x = d3.scaleLinear()
+                    .domain([mean_feature_value - 2 * std_feature_value, mean_feature_value + 2 * std_feature_value])
+                    .range([0, width]);
+
+                svg.append("g")
+                    .attr("transform", "translate(0," + height + ")")
+                    .call(d3.axisBottom(x));
+
+                var histogram = d3.histogram()
+                    .value(function(d) {return +d[feature]; })
+                    .domain(x.domain())
+                    .thresholds(x.ticks(number_of_bins));
+
+                var bins1 = histogram(data.filter(
+                    function(d){
+                        return d["type"] === "region_group1"
+                    }
+                ));
+
+                var bins2 = histogram(data.filter(
+                    function(d){
+                        return d["type"] === "region_group2"
+                    }
+                ));
+
+                var y = d3.scaleLinear()
+                    .range([height, 0]);
+                y.domain([0, d3.max(bins1, function(d){return d.length;})]);
+                svg.append("g").call(d3.axisLeft(y));
+
+                svg.selectAll("rect")
+                    .data(bins1).enter().append("rect").attr("x", 1)
+                    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+                    .attr("width", function(d){return x(d.x1) - x(d.x0) ;})
+                    .attr("height", function(d){ return height - y(d.length)})
+                    .style("fill", "#69b3a2")
+                    .style("opacity", 0.6);
+
+                svg.selectAll("rect2")
+                    .data(bins2).enter().append("rect").attr("x", 1)
+                    .attr("transform", function(d) { return "translate(" + x(d.x0) + "," + y(d.length) + ")"; })
+                    .attr("width", function(d){return x(d.x1) - x(d.x0) ;})
+                    .attr("height", function(d){ return height - y(d.length)})
+                    .style("fill", "#af0000")
+                    .style("opacity", 0.6);
+
+                svg.append("circle").attr("cx",10).attr("cy",30).attr("r", 6).style("fill", "#69b3a2")
+                svg.append("circle").attr("cx",10).attr("cy",60).attr("r", 6).style("fill", "#af0000")
+                svg.append("text").attr("x", 50).attr("y", 30).text("Group 1").style("font-size", "15px").attr("alignment-baseline","middle")
+                svg.append("text").attr("x", 50).attr("y", 60).text("Group 2").style("font-size", "15px").attr("alignment-baseline","middle")
+
+            }
+
+
+        update(data);
+
+        function change_number_of_bins(input_data){
+            number_of_bins = input_data;
+            d3.selectAll("svg").remove();
+            d3.csv("{{url_for('static', filename='warehouse/cache/cache.csv')}}", update);
+        }
+
+        // Listen to the button -> update if user change it
+          d3.select("#nBin").on("input", function() {
+            change_number_of_bins(+this.value);
+          });
+
+    </script>
+</div>
+
+
+</body>
+</html>

@@ -15,6 +15,98 @@ import sys
 import time
 
 
+def get_df_of_all_features_for_two_region_groups(
+        db,
+        var,
+        county_filter1,
+        state_filter1,
+        start_date1,
+        end_date1,
+        county_filter2,
+        state_filter2,
+        start_date2,
+        end_date2
+):
+    with open(os.path.join(application_directory, '../warehouse/variable_to_entity.pkl'), 'rb') as handle:
+        variable2entity = pickle.load(handle)
+    entity = variable2entity[var]
+    if 'confirmed_date' in dir(entity):
+        columns = ['state', 'confirmed_date']
+    else:
+        columns = ['state']
+
+    def process_county_filter(county_filter):
+        county_filter = [e.strip() for e in county_filter.split(',') if not e == '']
+
+        for i in range(len(county_filter)):
+            if ' ' in county_filter[i]:
+                elements = county_filter[i].split(' ')
+                for j in range(len(elements)):
+                    elements[j] = elements[j][0].upper() + elements[j][1:].lower()
+                county_filter[i] = ' '.join(elements)
+        if len(county_filter) == 0:
+            county_filter = None
+        return county_filter
+
+    def turn_to_date(x: str) -> date:
+        tmp = str(x)
+        date_parts = [int(e) for e in tmp.split('-')]
+        return date(date_parts[0], date_parts[1], date_parts[2])
+
+    start_date1 = turn_to_date(start_date1)
+    start_date2 = turn_to_date(start_date2)
+    end_date1 = turn_to_date(end_date1)
+    end_date2 = turn_to_date(end_date2)
+
+    county_filter1 = process_county_filter(county_filter1)
+    county_filter2 = process_county_filter(county_filter2)
+
+    state_filter1 = [e.strip() for e in state_filter1.split(',') if not e == '']
+    if len(state_filter1) == 0:
+        state_filter1 = None
+
+    state_filter2 = [e.strip() for e in state_filter2.split(',') if not e == '']
+    if len(state_filter2) == 0:
+        state_filter2 = None
+
+    if 'county' in dir(entity):
+        columns = ['county'] + columns
+    else:
+        assert county_filter1 is None
+        assert county_filter2 is None
+
+    mobility_related_renames = dict()
+    if var.startswith('google_mobility_'):
+        mobility_related_renames[var[len('google_mobility_'):]] = var
+        var = var[len('google_mobility_'):]
+
+    attributes = [getattr(entity, e) for e in columns + [var]]
+
+    df1 = db.session.query(*attributes)  # .add_columns(*attributes)
+    df2 = db.session.query(*attributes)
+    if county_filter1 is not None:
+        df1 = df1.filter(entity.county.in_(county_filter1))
+    if state_filter1 is not None:
+        df1 = df1.filter(entity.state.in_(state_filter1))
+    if county_filter2 is not None:
+        df2 = df2.filter(entity.county.in_(county_filter2))
+    if state_filter2 is not None:
+        df2 = df2.filter(entity.state.in_(state_filter2))
+
+    if 'confirmed_date' in dir(entity):
+        df1 = df1.filter(entity.confirmed_date >= start_date1).filter(entity.confirmed_date <= end_date1)
+        df2 = df2.filter(entity.confirmed_date >= start_date2).filter(entity.confirmed_date <= end_date2)
+
+    df1 = pandas.DataFrame(data=df1.all(), columns=columns + [var])
+    df1.rename(mobility_related_renames, axis=1, inplace=True, errors='raise')
+    df2 = pandas.DataFrame(data=df2.all(), columns=columns + [var])
+    df2.rename(mobility_related_renames, axis=1, inplace=True, errors='raise')
+    df1['type'] = 'region_group1'
+    df2['type'] = 'region_group2'
+    df = pandas.concat([df1, df2])
+    return df
+
+
 def get_df_for_variable_query(db, var, variable2entity, county_filter, state_filter):
     entity = variable2entity[var]
     # todo: fix for those without county
