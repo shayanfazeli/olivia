@@ -47,37 +47,37 @@ def regional_comparisons():
         if form.prepare_json.data == 'yes':
             statistics_json = []
             for var in label2description.keys():
-                df = get_df_of_all_features_for_two_region_groups(
-                    db,
-                    var,
-                    county_filter1_data,
-                    state_filter1_data,
-                    start_date1,
-                    end_date1,
-                    county_filter2_data,
-                    state_filter2_data,
-                    start_date2,
-                    end_date2
-                )
-
-                tmp_element = {'feature': label2description[var],
-                               'group1': {
-                                   'mean': df.loc[df.type == 'region_group1', var].mean(),
-                                   'median': df.loc[df.type == 'region_group1', var].median(),
-                                   'min': df.loc[df.type == 'region_group1', var].min(),
-                                   'max': df.loc[df.type == 'region_group1', var].max(),
-                                   'std': df.loc[df.type == 'region_group1', var].std()},
-                               'group2': {
-                                   'mean': df.loc[df.type == 'region_group2', var].mean(),
-                                   'median': df.loc[df.type == 'region_group2', var].median(),
-                                   'min': df.loc[df.type == 'region_group2', var].min(),
-                                   'max': df.loc[df.type == 'region_group2', var].max(),
-                                   'std': df.loc[df.type == 'region_group2', var].std()}
-                               }
                 try:
+                    df = get_df_of_all_features_for_two_region_groups(
+                        db,
+                        var,
+                        county_filter1_data,
+                        state_filter1_data,
+                        start_date1,
+                        end_date1,
+                        county_filter2_data,
+                        state_filter2_data,
+                        start_date2,
+                        end_date2
+                    )
+
+                    tmp_element = {'feature': label2description[var],
+                                   'group1': {
+                                       'mean': df.loc[df.type == 'region_group1', var].mean(),
+                                       'median': df.loc[df.type == 'region_group1', var].median(),
+                                       'min': df.loc[df.type == 'region_group1', var].min(),
+                                       'max': df.loc[df.type == 'region_group1', var].max(),
+                                       'std': df.loc[df.type == 'region_group1', var].std()},
+                                   'group2': {
+                                       'mean': df.loc[df.type == 'region_group2', var].mean(),
+                                       'median': df.loc[df.type == 'region_group2', var].median(),
+                                       'min': df.loc[df.type == 'region_group2', var].min(),
+                                       'max': df.loc[df.type == 'region_group2', var].max(),
+                                       'std': df.loc[df.type == 'region_group2', var].std()}
+                                   }
                     tmp_element['distance'] = abs(
                         (tmp_element['group1']['mean'] - tmp_element['group2']['mean']) / (
-                                    tmp_element['group1']['std'] + tmp_element['group2']['std']))
+                                tmp_element['group1']['std'] + tmp_element['group2']['std']))
                     if not numpy.isnan(tmp_element['distance']):
                         statistics_json.append(tmp_element)
                         del tmp_element
