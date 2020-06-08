@@ -47,6 +47,12 @@ def regional_comparisons():
         if form.prepare_json.data == 'yes':
             statistics_json = []
             for var in label2description.keys():
+                skip_flag = False
+                for skip_name in ['physical_activity', 'alcohol', 'life_expectancy', 'diabetes']:
+                    if var.startswith(skip_name):
+                        skip_flag = True
+                if skip_flag:
+                    continue
                 try:
                     df = get_df_of_all_features_for_two_region_groups(
                         db,
