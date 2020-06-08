@@ -5,6 +5,9 @@ from app.libraries.queries import get_df_of_all_features_for_two_region_groups, 
 from erlab_coat.meta import label2description
 from app import db, application_directory
 import json
+import pandas
+import numpy
+import gc
 from flask import jsonify, Response
 
 regional_comparisons_blueprint = Blueprint("regional_comparisons", __name__)
@@ -44,45 +47,45 @@ def regional_comparisons():
         if form.prepare_json.data == 'yes':
             statistics_json = []
             for var in label2description.keys():
+                df = get_df_of_all_features_for_two_region_groups(
+                    db,
+                    var,
+                    county_filter1_data,
+                    state_filter1_data,
+                    start_date1,
+                    end_date1,
+                    county_filter2_data,
+                    state_filter2_data,
+                    start_date2,
+                    end_date2
+                )
+
+                tmp_element = {'feature': label2description[var],
+                               'group1': {
+                                   'mean': df.loc[df.type == 'region_group1', var].mean(),
+                                   'median': df.loc[df.type == 'region_group1', var].median(),
+                                   'min': df.loc[df.type == 'region_group1', var].min(),
+                                   'max': df.loc[df.type == 'region_group1', var].max(),
+                                   'std': df.loc[df.type == 'region_group1', var].std()},
+                               'group2': {
+                                   'mean': df.loc[df.type == 'region_group2', var].mean(),
+                                   'median': df.loc[df.type == 'region_group2', var].median(),
+                                   'min': df.loc[df.type == 'region_group2', var].min(),
+                                   'max': df.loc[df.type == 'region_group2', var].max(),
+                                   'std': df.loc[df.type == 'region_group2', var].std()}
+                               }
                 try:
-                    df = get_df_of_all_features_for_two_region_groups(
-                        db,
-                        var,
-                        county_filter1_data,
-                        state_filter1_data,
-                        start_date1,
-                        end_date1,
-                        county_filter2_data,
-                        state_filter2_data,
-                        start_date2,
-                        end_date2
-                    )
-                    statistics_json.append(
-                        {'feature': label2description[var],
-                         'group1': {
-                             'mean': df.loc[df.type == 'region_group1', var].mean(),
-                             'median': df.loc[df.type == 'region_group1', var].median(),
-                             'min': df.loc[df.type == 'region_group1', var].min(),
-                             'max': df.loc[df.type == 'region_group1', var].max(),
-                             'std': df.loc[df.type == 'region_group1', var].std()},
-                         'group2': {
-                             'mean': df.loc[df.type == 'region_group2', var].mean(),
-                             'median': df.loc[df.type == 'region_group2', var].median(),
-                             'min': df.loc[df.type == 'region_group2', var].min(),
-                             'max': df.loc[df.type == 'region_group2', var].max(),
-                             'std': df.loc[df.type == 'region_group2', var].std()}
-                         })
-                except:
+                    tmp_element['distance'] = abs(
+                        (tmp_element['group1']['mean'] - tmp_element['group2']['mean']) / (
+                                    tmp_element['group1']['std'] + tmp_element['group2']['std']))
+                    if not numpy.isnan(tmp_element['distance']):
+                        statistics_json.append(tmp_element)
+                        del tmp_element
+                        gc.collect()
+                except Exception as e:
                     continue
 
-            def measure_differences_between_group_samples(x):
-                try:
-                    output = abs((x['group1']['mean'] - x['group2']['mean']) / (x['group1']['std'] + x['group2']['std']))
-                    return output
-                except Exception as e:
-                    return -1000000.0
-
-            statistics_json = sorted(statistics_json, key=measure_differences_between_group_samples, reverse=True)
+            statistics_json = sorted(statistics_json, key=lambda x: x['distance'], reverse=True)
             return render_template('results/group_comparison_statistics.html', results=statistics_json)
         else:
             statistics_json = []

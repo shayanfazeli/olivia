@@ -8,7 +8,7 @@ from erlab_coat.meta import label2description
 from erlab_coat.preprocessing import doty_to_date, olivia_interpolation, add_location_to_df, \
     add_day_of_the_year_to_cases_table
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
-    ICUBeds, CovidHospitalizations, Mortality, LandAndWater
+    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, ObesityAndLife, Alcohol, Diabetes
 from app import application_directory
 from app.libraries.utilities import floatify_df
 import sys

@@ -132,10 +132,10 @@ class RegionalComparisonForm(FlaskForm):
         ('google_mobility_residential_percent_change_from_baseline', 'x'),
 
         # - health data
-        # ('obesity_change_female_2001_2009', 'x'),
-        # ('obesity_change_male_2001_2009', 'x'),
-        # ('obesity_prevalence_female_2011', 'x'),
-        # ('obesity_prevalence_male_2011', 'x'),
+        ('obesity_change_female_2001_2009', 'x'),
+        ('obesity_change_male_2001_2009', 'x'),
+        ('obesity_prevalence_female_2011', 'x'),
+        ('obesity_prevalence_male_2011', 'x'),
         # ('physical_activity_sufficient_prevalence_male_2011', 'x'),
         # ('physical_activity_sufficient_prevalence_female_2011', 'x'),
         # ('physical_activity_sufficient_difference_male_2001_2009', 'x'),
