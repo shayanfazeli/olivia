@@ -48,7 +48,7 @@ class RegionalComparisonForm(FlaskForm):
         ('employment_family_percentage', 'x'),
         ('unemployment_percentage', 'x'),
         ('icu_beds', 'x'),
-        ('seniors_population_percentage',
+        ('senior_population_percentage',
          'x'),
         ('seniors_per_icubed',
          'x'),
