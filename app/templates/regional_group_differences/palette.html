@@ -57,7 +57,12 @@
                             {% if not feature == '' %}
                                 {#                                    <img class="viscenter" src="{{ url_for('static', filename=output) }}" width="80%"#}
                                 {#                                         height="80%"/>#}
-                                <p>Feature: {{ feature_description }}</p>
+                                <div>
+                                <p><b>Histogram of Feature Values</b></p>
+                                <p>X-Axis: Values of <i>{{ feature_description }}</i></p>
+                                <p>Y-Axis: Record Count</p>
+                                </div>
+
                                 <div style="min-width: 1010px; min-height: 513px;">
                                     <svg id="visual" width="1000" height="500" style="margin: 20px;"/>
                                 </div>
@@ -236,6 +241,8 @@
                 svg.append("circle").attr("cx",10).attr("cy",60).attr("r", 6).style("fill", "#af0000")
                 svg.append("text").attr("x", 50).attr("y", 30).text("Group 1").style("font-size", "15px").attr("alignment-baseline","middle")
                 svg.append("text").attr("x", 50).attr("y", 60).text("Group 2").style("font-size", "15px").attr("alignment-baseline","middle")
+                svg.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", width).attr("y", height + 40).text("{{ feature_description }}");
+                svg.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", - 40).attr("dy", ".75em").attr("transform", "rotate(-90)").text("Record Count");
 
             }
 
