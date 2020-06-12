@@ -3,7 +3,6 @@ import os
 import pandas
 from functools import reduce
 from datetime import datetime, date, timedelta
-from oliver.data.utilities.date_manipulation import get_datetime_object_from_date_string
 import numpy
 from erlab_coat.meta import label2description
 from erlab_coat.preprocessing import doty_to_date, olivia_interpolation, add_location_to_df, \
@@ -14,6 +13,47 @@ from app import application_directory
 from app.libraries.utilities import floatify_df
 import sys
 import time
+from typing import Union
+
+
+def get_datetime_object_from_date_string(
+        date_string: str,
+        separator: str = '-',
+        output_format: str = 'date'
+) -> Union[datetime, date]:
+    """
+    The :func:`get_datetime_object_from_date_string` is a helper for converting a date
+    string to a datetime library object.
+
+    Parameters
+    ----------
+    date_string: `str`, required
+        The input date string, for example: '2020-05-25'
+
+    separator: `str`, optional (default='-')
+        The separator for the `date_string` variable.
+
+    output_format: `str`, optional (default=date)
+        The optional output format customization, the default is `date` and the
+        other option is `datetime`. The main reason the second option has been
+        made available is through its wide usage with the DateTime object in the
+        Amazon Aurora instance of Olivia.
+
+    Returns
+    -----------
+    The output is an instance of `Union[datetime, date]`, which can either
+    be an instance of `date` or `datetime`.
+    """
+    assert separator in date_string, "error: separator is not observed."
+    date_parts = [int(e) for e in date_string.split(separator)]
+    if output_format == 'date':
+        output = date(year=date_parts[0], month=date_parts[1], day=date_parts[2])
+    elif output_format == 'datetime':
+        output = datetime(year=date_parts[0], month=date_parts[1], day=date_parts[2])
+    else:
+        raise ValueError
+
+    return output
 
 
 def get_df_for_county_scoring(
