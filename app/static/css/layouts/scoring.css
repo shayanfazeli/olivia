@@ -1,0 +1,32 @@
+path {
+    stroke: #fff;
+    stroke-width: .5px;
+  }
+  * {
+    margin: 0;
+    padding: 0; }
+
+  svg{
+   margin-top:4%;
+
+  }
+  body{
+    color:black;
+  }
+  #tooltip {
+    display: flex;
+    pointer-events: none;
+    justify-content: center;
+    position: absolute;
+    text-align: center;
+    width: 350px;
+    height: 150px;
+    padding: 2px;
+    font-size: 20px;
+    background: #489aff;
+    color:black;
+    box-shadow: 1px 1px 10px;
+    border-radius: 2px;
+    align-items: center;
+     }
+

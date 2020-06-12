@@ -3,6 +3,7 @@ import os
 import pandas
 from functools import reduce
 from datetime import datetime, date, timedelta
+from oliver.data.utilities.date_manipulation import get_datetime_object_from_date_string
 import numpy
 from erlab_coat.meta import label2description
 from erlab_coat.preprocessing import doty_to_date, olivia_interpolation, add_location_to_df, \
@@ -13,6 +14,121 @@ from app import application_directory
 from app.libraries.utilities import floatify_df
 import sys
 import time
+
+
+def get_df_for_county_scoring(
+        db,
+        past_focus_factor: float = 0.9,
+        focus_cases: float = 1.0,
+        focus_deaths: float = 0.5,
+        focus_recoveries: float = 0,
+        min_date: str = "2020-06-01",
+        normalize: bool = True
+) -> pandas.DataFrame:
+    """
+    The :func:`get_df_for_county_scoring` obtains COVID-19 Region Health Scores
+
+    Parameters
+    ----------
+    db: required
+        The database instance
+
+    past_focus_factor: 'float', optional (default=0.9)
+        Float value indicating how much focus should be put on previous ith day.
+
+    focus_cases:  'float', optional (default=1.0)
+        Focus value
+
+    focus_deaths:  'float', optional (default=0.5)
+        Focus value
+
+    focus_recoveries: 'float', optional (default=0.0)
+        Focus value
+
+    min_date: `str`, optional (default='2020-06-01')
+        The minimum date, before which all the records will be neglected.
+
+    normalize: `bool`, optional (default=True)
+        If set to true, returned scores will be between 0 and 100.
+
+    Returns
+    ----------
+    The `pandas.DataFrame` object that includes counties, states, and their score.
+    """
+    df = db.session.query(
+        Cases.county,
+        Cases.state,
+        Cases.confirmed_date,
+        Cases.confirmed_count,
+        Cases.confirmed_count_cumsum_per100k,
+        Cases.death_count,
+        Cases.death_count_cumsum_per100k,
+        Cases.recovered_count,
+        Cases.recovered_count_cumsum_per100k
+    )
+    if min_date is not None:
+        df = df.filter(Cases.confirmed_date >= get_datetime_object_from_date_string(min_date))
+    columns = ['county', 'state', 'confirmed_date', 'confirmed_count', 'confirmed_count_cumsum_per100k', 'death_count',
+               'death_count_cumsum_per100k', 'recovered_count', 'recovered_count_cumsum_per100k']
+
+    df = pandas.DataFrame(data=df.all(), columns=columns)
+
+    def score_compute(subdf):
+        assert past_focus_factor <= 1.0
+        if subdf.shape[0] < 2:
+            return pandas.DataFrame({'score': [0]})
+        else:
+            subdf = subdf.copy()
+            subdf.reset_index(drop=True, inplace=True)
+            subdf['historical_value'] = past_focus_factor ** (numpy.arange(subdf.shape[0] - 1, -1, -1) - 1)
+            subdf['confirmed_count_t_minus_tprev'] = subdf.confirmed_count.diff()
+            subdf.loc[1:, 'confirmed_count_tprev'] = subdf.confirmed_count.to_numpy()[:-1]
+            subdf.loc[1:, 'confirmed_count_cumsum_per100k_tprev'] = subdf.confirmed_count_cumsum_per100k.to_numpy()[:-1]
+
+            subdf['death_count_t_minus_tprev'] = subdf.death_count.diff()
+            subdf.loc[1:, 'death_count_tprev'] = subdf.death_count.to_numpy()[:-1]
+            subdf.loc[1:, 'death_count_cumsum_per100k_tprev'] = subdf.death_count_cumsum_per100k.to_numpy()[:-1]
+
+            subdf['recovered_count_t_minus_tprev'] = subdf.recovered_count.diff()
+            subdf.loc[1:, 'recovered_count_tprev'] = subdf.recovered_count.to_numpy()[:-1]
+            subdf.loc[1:, 'recovered_count_cumsum_per100k_tprev'] = subdf.recovered_count_cumsum_per100k.to_numpy()[:-1]
+
+            subdf = subdf.iloc[1:]
+            subdf['score_cases'] = (-1) * (subdf.confirmed_count_t_minus_tprev) * (
+                    1.0 / subdf.confirmed_count_cumsum_per100k_tprev) * subdf.historical_value
+            subdf['score_deaths'] = (-1) * (subdf.death_count_t_minus_tprev) * (
+                            1.0 / subdf.death_count_cumsum_per100k_tprev) * subdf.historical_value
+            subdf['score_recoveries'] = (subdf.recovered_count_t_minus_tprev) * (
+                            1.0 / subdf.recovered_count_cumsum_per100k_tprev) * subdf.historical_value
+
+            def get_score(x):
+                x = x[~numpy.isinf(x)]
+                x.dropna(inplace=True)
+                if x.shape[0] == 0:
+                    return 0
+                else:
+                    return x.mean()
+            score_cases = get_score(subdf['score_cases'])
+            score_deaths = get_score(subdf['score_deaths'])
+            score_recoveries = get_score(subdf['score_recoveries'])
+
+            score = (focus_cases * score_cases + focus_deaths * score_deaths + focus_recoveries * score_recoveries) / (focus_cases + focus_deaths + focus_recoveries)
+
+            return pandas.DataFrame({'score': [score]})
+
+    df = df.groupby(['county', 'state']).apply(score_compute)
+    df.reset_index(inplace=True)
+
+    if normalize:
+        score_lower = df.score.quantile(0.25)
+        score_upper = df.score.quantile(0.75)
+        df.loc[df.score < score_lower, 'score'] = score_lower
+        df.loc[df.score > score_upper, 'score'] = score_upper
+        df.score -= df.score.min()
+        df.score /= df.score.max()
+        df.score *= 100.0
+
+    return df
 
 
 def get_df_of_all_features_for_two_region_groups(
@@ -188,7 +304,7 @@ def get_data_for_query(
     output_df = reduce(lambda left, right: special_reduce(left, right), dfs)
 
     t2 = time.time()
-    print("\nmerged - time spent: {}\n".format(t2-t1), file=sys.stderr)
+    print("\nmerged - time spent: {}\n".format(t2 - t1), file=sys.stderr)
 
     output_df.confirmed_date = output_df.confirmed_date.apply(lambda x: str(x.date()))
 
@@ -206,7 +322,6 @@ def get_data_for_query(
         except:
             import pdb
             pdb.set_trace()
-
 
     return output_df
 
@@ -250,9 +365,10 @@ def process_for_d3_json(df):
 
         output.append(tmp.copy())
     t1 = time.time()
-    print("\njson completed: time spent: {}\n".format(t1-t0))
+    print("\njson completed: time spent: {}\n".format(t1 - t0))
 
     return output
+
 
 def process_for_d3_json_ultrafast(df):
     print("\n creating json\n")
@@ -282,7 +398,7 @@ def process_for_d3_json_ultrafast(df):
         )
 
     t1 = time.time()
-    print("\njson completed: time spent: {}\n".format(t1-t0))
+    print("\njson completed: time spent: {}\n".format(t1 - t0))
 
     return output
 
@@ -301,7 +417,8 @@ def convert_subdf_to_dict(sub_df, location):
 
     sub_df = sub_df.to_dict()
     sub_df = {x: list(sub_df[x].values()) for x in sub_df.keys() if x not in ['Name', 'location']}
-    sub_df = {x: list(zip(sub_df['day_of_the_year'], sub_df[x])) for x in sub_df.keys() if x not in ['Name', 'location', 'day_of_the_year']}
+    sub_df = {x: list(zip(sub_df['day_of_the_year'], sub_df[x])) for x in sub_df.keys() if
+              x not in ['Name', 'location', 'day_of_the_year']}
     sub_df = {x: [list(e) for e in sub_df[x]] for x in sub_df.keys() if
               x not in ['Name', 'location', 'day_of_the_year']}
     sub_df['Name'] = location

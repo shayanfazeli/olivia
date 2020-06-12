@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+    <title>ERLab Regional Scoring</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
+          crossorigin="anonymous">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+
+    <!--<![endif]-->
+
+
+    <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{{url_for('static', filename='css/layouts/blog-old-ie.css')}}">
+        <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/blog.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/grapher.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/scoring.css') }}">
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:100,300,400,600" rel="stylesheet" type="text/css">
+    <link href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
+    <!--<![endif]-->
+</head>
+<body>
+
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">Region Scoring</h1>
+            <h2 class="brand-tagline">Regional Scores based on COVID-19 Health</h2>
+        </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+        <div>
+            <!-- A wrapper for all the blog posts -->
+            <div class="posts">
+                <!-- A single blog post -->
+                <section class="svg-post">
+                    <header class="post-header">
+
+
+                        <h2 class="post-title">Region Scoring</h2>
+
+
+                    </header>
+
+                    <div>
+                        <p>
+                            {% if not chart_data == '' %}
+                                {#                                    <img class="viscenter" src="{{ url_for('static', filename=output) }}" width="80%"#}
+                                {#                                         height="80%"/>#}
+
+                                <div style="min-width: 1010px; min-height: 513px;">
+                                    <svg id="visual" width="1500" height="700" style="margin: 20px;"/>
+                                </div>
+
+                                {#                                <div><button class="downloadButton" onclick="window.location.href = '{{ url_for('static', filename=download_link) }}';"><i class="fa fa-download"></i>Data</button></div>#}
+
+                            {% else %}
+                                <p class="descriptionEr">Please click plot to continue.</p>
+                            {% endif %}
+                    </p>
+            </div>
+
+            <div class="post-description">
+                <form action="" method="post" id="submission_form" onsubmit="$('.modal').show();" novalidate>
+                    {{ form.hidden_tag() }}
+                    <p>
+                        {{ form.focus_cases.label }}<br>
+                        {{ form.focus_cases() }}<br>
+                        {% for error in form.focus_cases.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p>
+                        {{ form.focus_deaths.label }}<br>
+                        {{ form.focus_deaths() }}<br>
+                        {% for error in form.focus_deaths.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p>
+                        {{ form.focus_recoveries.label }}<br>
+                        {{ form.focus_recoveries() }}<br>
+                        {% for error in form.focus_recoveries.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p>
+                        {{ form.past_focus_factor.label }}<br>
+                        {{ form.past_focus_factor() }}<br>
+                        {% for error in form.past_focus_factor.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p>
+                    <p>
+                        {{ form.min_date.label }}<br>
+                        {{ form.min_date() }}<br>
+                        {% for error in form.min_date.errors %}
+                            <span style="color: red;">[{{ error }}]</span>
+                        {% endfor %}
+                    </p><br>
+                    <p>{{ form.submit() }}</p>
+                </form>
+                <p>
+                    By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
+                </p>
+            </div>
+            <div class="modal">Generating the results, Please wait...</div>
+            </section>
+        </div>
+
+
+    </div>
+</div>
+
+
+<script>
+    data = {{chart_data | safe}};
+
+    var margin = {top: 10, right: 10, bottom: 50, left: 50},
+        width = 1500 - margin.left - margin.right,
+        height = 700 - margin.top - margin.bottom;
+
+    var url_county = "{{ url_for('static', filename='counties.json') }}";
+    var tooltip = d3.select("body").append("div")
+        .attr("id", "tooltip")
+        .style("opacity", 0);
+
+    var path = d3.geoPath();
+
+    var svg =  d3.select("#visual")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    var color_Style = ['red', 'orange', 'aqua', 'blue', 'greenyellow', 'green'];
+
+    function plot_map(data) {
+        var Search = function (id, a, b) {
+            var n = parseInt((a + b) / 2);
+            var x = data[a]["fips"];
+            var y = data[b]["fips"];
+            var z = data[n]["fips"];
+
+            if (id === y) {
+                return b;
+            } else if (id === x) {
+                return a;
+            } else if (id === z) {
+                return n;
+            } else if (id > z) {
+                return Search(id, n, b);
+            } else if (id < z) {
+                return Search(id, a, n);
+            } else {
+                return -1;
+            }
+        };
+
+
+        d3.json(url_county, function (topology) {
+
+            // console.log(data)
+            min_value = d3.min(data.map(function (d) {
+                return d.score_value;
+            }));
+            max_value = d3.max(data.map(function (d) {
+                return d.score_value;
+            }));
+
+            var array = new Array();
+            var r = (max_value - min_value) / 6;
+            for (var i = 0; i <= 6; i++) {
+                array.push(min_value + i * r);
+            }
+            color_Scale = d3.scaleQuantize()
+                .domain([min_value, max_value])
+                .range(color_Style);
+
+
+            svg.append("g")
+                .attr("class", "counties")
+                .selectAll("path")
+                .data(topojson.feature(topology, topology.objects.counties).features)
+                .enter().append("path")
+                .attr("class", "county")
+                .attr("d", path)
+                .attr("fill", function (d, i) {
+                    var pto = data.filter((elem) => elem.fips === d.id)
+                    if (pto[0]) {
+                        return color_Scale(pto[0].score_value)
+                    }
+                })
+                .attr("data-fips", (d, i) => d.id)
+                .attr("data-education", function (d, i) {
+                    var pto = data.filter((elem) => elem.fips === d.id);
+                    if (pto[0]) {
+                        return pto[0].score_value
+                    }
+
+                })
+                .attr("data-area", function (d, i) {
+                    var pto = data.filter((elem) => elem.fips === d.id);
+                    if (pto[0]) {
+                        return pto[0].area_name
+                    }
+
+                })
+
+                .on('mouseover', function (d, i) {
+
+                    d3.select(this).style("fill", "white");
+                    tooltip.transition()
+                        .duration(100)
+                        .style('opacity', .9);
+                    tooltip.html("Region: " + this.getAttribute("data-area") + "<br>" + "Score: " + this.getAttribute("data-education") + "%")
+                        .attr("data-education", this.getAttribute("data-education"))
+                        .style("left", (d3.event.pageX) + "px")
+                        .style("top", (d3.event.pageY - 30) + "px")
+                        .style('transform', 'translateX(60px)');
+
+                })
+                .attr("transform", "translate(100,100 )")
+                .on('mouseout', function (d, i) {
+
+                    d3.select(this).style("fill", color_Scale(this.getAttribute("data-education")))
+                    tooltip.transition()
+                        .duration(100)
+                        .style('opacity', 0);
+                });
+
+
+            var g = svg.append("g")
+                .attr("class", "key")
+                .attr("id", "legend")
+                .attr("transform", "translate(0,40)");
+
+            g.selectAll("rect")
+                .data(color_Style)
+                .enter().append("rect")
+                .attr("height", 8)
+                .attr("x", function (d, i) {
+                    return 30 * i + 100
+                })
+                .attr("y", function (d, i) {
+                    return 10
+                })
+                .attr("width", 30)
+                .attr("fill", function (d) {
+                    return d;
+                });
+
+
+            var linearcolor_Scale = d3.scaleLinear()
+                .domain([min_value, max_value])
+                .range([0, 180]);
+
+            var xAxis = d3.axisBottom()
+                .scale(linearcolor_Scale)
+                .tickFormat(d3.format("d"))
+                .tickValues(array);
+            var xAxisGroup = svg.append('g')
+                .attr('transform', 'translate(100, 60)')
+                .call(xAxis);
+
+
+        });
+
+    }
+
+    plot_map(data)
+
+
+</script>
+
+
+</body>
+</html>
