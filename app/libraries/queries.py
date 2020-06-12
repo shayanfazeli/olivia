@@ -95,11 +95,11 @@ def get_df_for_county_scoring(
 
             subdf = subdf.iloc[1:]
             subdf['score_cases'] = (-1) * (subdf.confirmed_count_t_minus_tprev) * (
-                    1.0 / subdf.confirmed_count_cumsum_per100k_tprev) * subdf.historical_value
+                    1.0 / (subdf.confirmed_count_cumsum_per100k_tprev + 1.0)) * subdf.historical_value
             subdf['score_deaths'] = (-1) * (subdf.death_count_t_minus_tprev) * (
-                            1.0 / subdf.death_count_cumsum_per100k_tprev) * subdf.historical_value
+                            1.0 / (subdf.death_count_cumsum_per100k_tprev + 1.0)) * subdf.historical_value
             subdf['score_recoveries'] = (subdf.recovered_count_t_minus_tprev) * (
-                            1.0 / subdf.recovered_count_cumsum_per100k_tprev) * subdf.historical_value
+                            1.0 / (subdf.recovered_count_cumsum_per100k_tprev + 1.0)) * subdf.historical_value
 
             def get_score(x):
                 x = x[~numpy.isinf(x)]
@@ -120,8 +120,8 @@ def get_df_for_county_scoring(
     df.reset_index(inplace=True)
 
     if normalize:
-        score_lower = df.score.quantile(0.25)
-        score_upper = df.score.quantile(0.75)
+        score_lower = df.score.quantile(0.05)
+        score_upper = df.score.quantile(0.95)
         df.loc[df.score < score_lower, 'score'] = score_lower
         df.loc[df.score > score_upper, 'score'] = score_upper
         df.score -= df.score.min()

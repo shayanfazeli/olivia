@@ -56,7 +56,7 @@
 1109,Pike,AL
 1111,Randolph,AL
 1113,Russell,AL
-1115,St Clair,AL
+1115,St. Clair,AL
 1117,Shelby,AL
 1119,Sumter,AL
 1121,Talladega,AL
@@ -169,7 +169,7 @@
 5117,Prairie,AR
 5119,Pulaski,AR
 5121,Randolph,AR
-5123,St Francis,AR
+5123,St. Francis,AR
 5125,Saline,AR
 5127,Scott,AR
 5129,Searcy,AR
@@ -370,8 +370,8 @@
 12103,Pinellas,FL
 12105,Polk,FL
 12107,Putnam,FL
-12109,St Johns,FL
-12111,St Lucie,FL
+12109,St. Johns,FL
+12111,St. Lucie,FL
 12113,Santa Rosa,FL
 12115,Sarasota,FL
 12117,Seminole,FL
@@ -671,7 +671,7 @@
 17157,Randolph,IL
 17159,Richland,IL
 17161,Rock Island,IL
-17163,St Clair,IL
+17163,St. Clair,IL
 17165,Saline,IL
 17167,Sangamon,IL
 17169,Schuyler,IL
@@ -762,7 +762,7 @@
 18135,Randolph,IN
 18137,Ripley,IN
 18139,Rush,IN
-18141,St Joseph,IN
+18141,St. Joseph,IN
 18143,Scott,IN
 18145,Shelby,IN
 18147,Spencer,IN
@@ -1151,15 +1151,15 @@
 22081,Red River,LA
 22083,Richland,LA
 22085,Sabine,LA
-22087,St Bernard,LA
-22089,St Charles,LA
-22091,St Helena,LA
-22093,St James,LA
-22095,St John the Baptist,LA
-22097,St Landry,LA
-22099,St Martin,LA
-22101,St Mary,LA
-22103,St Tammany,LA
+22087,St. Bernard,LA
+22089,St. Charles,LA
+22091,St. Helena,LA
+22093,St. James,LA
+22095,St. John the Baptist,LA
+22097,St. Landry,LA
+22099,St. Martin,LA
+22101,St. Mary,LA
+22103,St. Tammany,LA
 22105,Tangipahoa,LA
 22107,Tensas,LA
 22109,Terrebonne,LA
@@ -1205,7 +1205,7 @@
 24031,Montgomery,MD
 24033,Prince Georges,MD
 24035,Queen Annes,MD
-24037,St Marys,MD
+24037,St. Marys,MD
 24039,Somerset,MD
 24041,Talbot,MD
 24043,Washington,MD
@@ -1299,8 +1299,8 @@
 26141,Presque Isle,MI
 26143,Roscommon,MI
 26145,Saginaw,MI
-26147,St Clair,MI
-26149,St Joseph,MI
+26147,St. Clair,MI
+26149,St. Joseph,MI
 26151,Sanilac,MI
 26153,Schoolcraft,MI
 26155,Shiawassee,MI
@@ -1377,7 +1377,7 @@
 27131,Rice,MN
 27133,Rock,MN
 27135,Roseau,MN
-27137,St Louis,MN
+27137,St. Louis,MN
 27139,Scott,MN
 27141,Sherburne,MN
 27143,Sibley,MN
@@ -1569,11 +1569,11 @@
 29177,Ray,MO
 29179,Reynolds,MO
 29181,Ripley,MO
-29183,St Charles,MO
-29185,St Clair,MO
+29183,St. Charles,MO
+29185,St. Clair,MO
 29186,Ste. Genevieve,MO
-29187,St Francois,MO
-29189,St Louis,MO
+29187,St. Francois,MO
+29189,St. Louis,MO
 29195,Saline,MO
 29197,Schuyler,MO
 29199,Scotland,MO
@@ -1592,7 +1592,7 @@
 29225,Webster,MO
 29227,Worth,MO
 29229,Wright,MO
-29510,St Louis City,MO
+29510,St. Louis City,MO
 30001,Beaverhead,MT
 30003,Big Horn,MT
 30005,Blaine,MT
@@ -1868,7 +1868,7 @@
 36083,Rensselaer,NY
 36085,Richmond,NY
 36087,Rockland,NY
-36089,St Lawrence,NY
+36089,St. Lawrence,NY
 36091,Saratoga,NY
 36093,Schenectady,NY
 36095,Schoharie,NY
@@ -3101,7 +3101,7 @@
 55103,Richland,WI
 55105,Rock,WI
 55107,Rusk,WI
-55109,St Croix,WI
+55109,St. Croix,WI
 55111,Sauk,WI
 55113,Sawyer,WI
 55115,Shawano,WI
