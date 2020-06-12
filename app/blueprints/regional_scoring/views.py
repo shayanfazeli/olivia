@@ -33,14 +33,13 @@ def regional_scoring():
         focus_cases = consideration_value(form.focus_cases.data)
         focus_deaths = consideration_value(form.focus_deaths.data)
         focus_recoveries = consideration_value(form.focus_recoveries.data)
-        past_focus_factor = consideration_value(form.past_focus_factor.data)
 
-        df = get_df_for_county_scoring(
+        df, sorted_counties, sorted_states = get_df_for_county_scoring(
             db,
             focus_cases=focus_cases,
             focus_deaths=focus_deaths,
             focus_recoveries=focus_recoveries,
-            past_focus_factor=past_focus_factor,
+            max_date=str(form.max_date.data),
             min_date=str(form.min_date.data),
             normalize=True
         )
@@ -61,7 +60,9 @@ def regional_scoring():
         return render_template(
             'regional_scoring/palette.html',
             form=form,
-            chart_data=chart_data
+            chart_data=chart_data,
+            sorted_counties=sorted_counties,
+            sorted_states=sorted_states
         )
 
     return render_template(

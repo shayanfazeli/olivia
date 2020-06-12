@@ -18,11 +18,11 @@ import time
 
 def get_df_for_county_scoring(
         db,
-        past_focus_factor: float = 0.9,
-        focus_cases: float = 1.0,
-        focus_deaths: float = 0.5,
-        focus_recoveries: float = 0,
-        min_date: str = "2020-06-01",
+        focus_cases: float,
+        focus_deaths: float,
+        focus_recoveries: float,
+        min_date: str,
+        max_date: str,
         normalize: bool = True
 ) -> pandas.DataFrame:
     """
@@ -33,20 +33,20 @@ def get_df_for_county_scoring(
     db: required
         The database instance
 
-    past_focus_factor: 'float', optional (default=0.9)
-        Float value indicating how much focus should be put on previous ith day.
-
-    focus_cases:  'float', optional (default=1.0)
+    focus_cases:  'float', required
         Focus value
 
-    focus_deaths:  'float', optional (default=0.5)
+    focus_deaths:  'float', required
         Focus value
 
-    focus_recoveries: 'float', optional (default=0.0)
+    focus_recoveries: 'float', required
         Focus value
 
-    min_date: `str`, optional (default='2020-06-01')
+    min_date: `str`, required
         The minimum date, before which all the records will be neglected.
+
+    max_date: `str`, required
+        The maximum date, before which all the records will be neglected.
 
     normalize: `bool`, optional (default=True)
         If set to true, returned scores will be between 0 and 100.
@@ -66,58 +66,54 @@ def get_df_for_county_scoring(
         Cases.recovered_count,
         Cases.recovered_count_cumsum_per100k
     )
-    if min_date is not None:
-        df = df.filter(Cases.confirmed_date >= get_datetime_object_from_date_string(min_date))
+    assert min_date is not None
+    assert max_date is not None
+    df = df.filter(Cases.confirmed_date >= get_datetime_object_from_date_string(min_date))
+    df = df.filter(Cases.confirmed_date <= get_datetime_object_from_date_string(max_date))
     columns = ['county', 'state', 'confirmed_date', 'confirmed_count', 'confirmed_count_cumsum_per100k', 'death_count',
                'death_count_cumsum_per100k', 'recovered_count', 'recovered_count_cumsum_per100k']
 
     df = pandas.DataFrame(data=df.all(), columns=columns)
 
-    def score_compute(subdf):
-        assert past_focus_factor <= 1.0
-        if subdf.shape[0] < 2:
-            return pandas.DataFrame({'score': [0]})
-        else:
-            subdf = subdf.copy()
-            subdf.reset_index(drop=True, inplace=True)
-            subdf['historical_value'] = past_focus_factor ** (numpy.arange(subdf.shape[0] - 1, -1, -1) - 1)
-            subdf['confirmed_count_t_minus_tprev'] = subdf.confirmed_count.diff()
-            subdf.loc[1:, 'confirmed_count_tprev'] = subdf.confirmed_count.to_numpy()[:-1]
-            subdf.loc[1:, 'confirmed_count_cumsum_per100k_tprev'] = subdf.confirmed_count_cumsum_per100k.to_numpy()[:-1]
+    def integral_score_compute_for_subdf(subdf):
+        subdf = subdf.copy()
+        def compute_integral_score(x):
+            if x.shape[0] < 5:
+                return 0
+            c_0 = x[0]
+            T = x.shape[0] - 1
+            Tc_0 = float(T * c_0)
+            Tx_T = float(T * x[-1])
+            blue = float(numpy.sum(x[1:]) - Tc_0)
+            red = float(Tx_T - Tc_0)
+            if red == 0:
+                return 0
+            orange = Tc_0
+            try:
+                score = (blue / red) * (2 - (red / (red + orange)))
+            except Exception as e:
+                score = 0
+            return score
 
-            subdf['death_count_t_minus_tprev'] = subdf.death_count.diff()
-            subdf.loc[1:, 'death_count_tprev'] = subdf.death_count.to_numpy()[:-1]
-            subdf.loc[1:, 'death_count_cumsum_per100k_tprev'] = subdf.death_count_cumsum_per100k.to_numpy()[:-1]
+        confirmed_count_cumsum_per100k = subdf.confirmed_count_cumsum_per100k.to_numpy()
+        death_count_cumsum_per100k = subdf.death_count_cumsum_per100k.to_numpy()
+        recovered_count_cumsum_per100k = subdf.recovered_count_cumsum_per100k.to_numpy()
 
-            subdf['recovered_count_t_minus_tprev'] = subdf.recovered_count.diff()
-            subdf.loc[1:, 'recovered_count_tprev'] = subdf.recovered_count.to_numpy()[:-1]
-            subdf.loc[1:, 'recovered_count_cumsum_per100k_tprev'] = subdf.recovered_count_cumsum_per100k.to_numpy()[:-1]
+        score_cases = compute_integral_score(x=confirmed_count_cumsum_per100k)
+        score_deaths = compute_integral_score(x=death_count_cumsum_per100k)
+        score_recoveries = compute_integral_score(x=recovered_count_cumsum_per100k)
 
-            subdf = subdf.iloc[1:]
-            subdf['score_cases'] = (-1) * (subdf.confirmed_count_t_minus_tprev) * (
-                    1.0 / (subdf.confirmed_count_cumsum_per100k_tprev + 1.0)) * subdf.historical_value
-            subdf['score_deaths'] = (-1) * (subdf.death_count_t_minus_tprev) * (
-                            1.0 / (subdf.death_count_cumsum_per100k_tprev + 1.0)) * subdf.historical_value
-            subdf['score_recoveries'] = (subdf.recovered_count_t_minus_tprev) * (
-                            1.0 / (subdf.recovered_count_cumsum_per100k_tprev + 1.0)) * subdf.historical_value
+        score = (focus_cases * score_cases + focus_deaths * score_deaths + focus_recoveries * score_recoveries) / (
+                    focus_cases + focus_deaths + focus_recoveries)
 
-            def get_score(x):
-                x = x[~numpy.isinf(x)]
-                x.dropna(inplace=True)
-                if x.shape[0] == 0:
-                    return 0
-                else:
-                    return x.mean()
-            score_cases = get_score(subdf['score_cases'])
-            score_deaths = get_score(subdf['score_deaths'])
-            score_recoveries = get_score(subdf['score_recoveries'])
+        return pandas.DataFrame({'score': [score]})
 
-            score = (focus_cases * score_cases + focus_deaths * score_deaths + focus_recoveries * score_recoveries) / (focus_cases + focus_deaths + focus_recoveries)
-
-            return pandas.DataFrame({'score': [score]})
-
-    df = df.groupby(['county', 'state']).apply(score_compute)
+    df = df.groupby(['county', 'state']).apply(integral_score_compute_for_subdf)
     df.reset_index(inplace=True)
+
+    sorted_df = df.copy().sort_values(by='score', ascending=False)
+    sorted_counties = sorted_df['county'].tolist()
+    sorted_states = sorted_df['state'].tolist()
 
     if normalize:
         score_lower = df.score.quantile(0.05)
@@ -128,7 +124,7 @@ def get_df_for_county_scoring(
         df.score /= df.score.max()
         df.score *= 100.0
 
-    return df
+    return df, sorted_counties, sorted_states
 
 
 def get_df_of_all_features_for_two_region_groups(
