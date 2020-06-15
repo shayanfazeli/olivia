@@ -121,10 +121,10 @@ def get_df_for_county_scoring(
             if x.shape[0] < 5:
                 return 0
             c_0 = x[0]
-            T = x.shape[0] - 1
+            T = x.shape[0]
             Tc_0 = float(T * c_0)
             Tx_T = float(T * x[-1])
-            blue = float(numpy.sum(x[1:]) - Tc_0)
+            blue = float(numpy.sum(x) - Tc_0)
             red = float(Tx_T - Tc_0)
             if red == 0:
                 return 0
