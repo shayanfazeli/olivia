@@ -143,7 +143,7 @@ def get_df_for_county_scoring(
         score_deaths = compute_integral_score(x=death_count_cumsum_per100k)
         score_recoveries = compute_integral_score(x=recovered_count_cumsum_per100k)
 
-        score = (focus_cases * score_cases + focus_deaths * score_deaths + focus_recoveries * score_recoveries) / (
+        score = (focus_cases * score_cases + focus_deaths * score_deaths - focus_recoveries * score_recoveries) / (
                     focus_cases + focus_deaths + focus_recoveries)
 
         return pandas.DataFrame({'score': [score]})
