@@ -130,7 +130,7 @@ def get_df_for_county_scoring(
                 return 0
             orange = Tc_0
             try:
-                score = (blue / red) * (2 - (red / (red + orange)))
+                score = - (blue / red) * (red / (red + orange)) * 1000.0
             except Exception as e:
                 score = 0
             return score
@@ -156,8 +156,8 @@ def get_df_for_county_scoring(
     sorted_states = sorted_df['state'].tolist()
 
     if normalize:
-        score_lower = df.score.quantile(0.05)
-        score_upper = df.score.quantile(0.95)
+        score_lower = df.score.quantile(0.02)
+        score_upper = df.score.quantile(0.98)
         df.loc[df.score < score_lower, 'score'] = score_lower
         df.loc[df.score > score_upper, 'score'] = score_upper
         df.score -= df.score.min()
