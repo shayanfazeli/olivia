@@ -512,6 +512,7 @@ def update_dynamic_tables(path=os.path.abspath(os.path.join(application_director
     ).all(), columns=columns)
 
     google_mobility_updates = pandas.merge(google_mobility, current_df, on=['county', 'state', 'confirmed_date'], how='outer', indicator=True).query("_merge != 'both'").drop('_merge', axis=1).reset_index(drop=True)
+
     to_drop = []
     rename_dict = dict()
     for column in google_mobility_updates.columns:
@@ -519,6 +520,8 @@ def update_dynamic_tables(path=os.path.abspath(os.path.join(application_director
             to_drop.append(column)
         elif column.endswith('_x'):
             rename_dict[column] = column[:-2]
+    if 'census_fips_code' in google_mobility_updates.columns:
+        to_drop.append('census_fips_code')
     google_mobility_updates.drop(columns=to_drop, inplace=True)
     google_mobility_updates.rename(rename_dict, axis=1, inplace=True, errors='raise')
     google_mobility_updates.dropna(inplace=True)
