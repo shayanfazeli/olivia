@@ -310,6 +310,16 @@ class ObesityAndLife(db.Model):
     __table_args__ = (db.Index('myindex_obesity', 'county', 'state', unique=True), )
 
 
+class CollegeCovid(db.Model):
+    __tablename__ = "college_covid"
+    id = db.Column(db.Integer, primary_key=True)
+    state = db.Column(db.String(255))
+    county = db.Column(db.String(255))
+    average_college_total_confirmed_count_cumsum = db.Column(db.Float, nullable=True)
+    average_college_medunit_confirmed_count_cumsum = db.Column(db.Float, nullable=True)
+    average_college_total_death_count_cumsum = db.Column(db.Float, nullable=True)
+
+    __table_args__ = (db.Index('myindex_college_covid', 'county', 'state', unique=True), db.UniqueConstraint('county', 'state'))
 
 
 

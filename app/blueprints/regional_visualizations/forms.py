@@ -135,6 +135,9 @@ class CoatPlotD3Form(FlaskForm):
         ('google_mobility_workplaces_percent_change_from_baseline', 'x'),
         ('google_mobility_residential_percent_change_from_baseline', 'x'),
 
+        ('average_college_total_confirmed_count_cumsum', 'x'),
+        ('average_college_medunit_confirmed_count_cumsum', 'x')
+
         # - health data
         # ('obesity_change_female_2001_2009', 'x'),
         # ('obesity_change_male_2001_2009', 'x'),
@@ -340,6 +343,8 @@ class CoatPlotD3Form(FlaskForm):
         ('google_mobility_workplaces_percent_change_from_baseline',
          'Changes in Mobility From Baseline - Retail and Recreation'),
         ('google_mobility_residential_percent_change_from_baseline', 'Changes in Mobility From Baseline - Residential'),
+        ('average_college_total_confirmed_count_cumsum', 'x'),
+        ('average_college_medunit_confirmed_count_cumsum', 'x')
         # ('obesity_change_female_2001_2009', 'x'),
         # ('obesity_change_male_2001_2009', 'x'),
         # ('obesity_prevalence_female_2011', 'x'),
@@ -544,6 +549,8 @@ class CoatPlotD3Form(FlaskForm):
         ('google_mobility_workplaces_percent_change_from_baseline',
          'Changes in Mobility From Baseline - Retail and Recreation'),
         ('google_mobility_residential_percent_change_from_baseline', 'Changes in Mobility From Baseline - Residential'),
+        ('average_college_total_confirmed_count_cumsum', 'x'),
+        ('average_college_medunit_confirmed_count_cumsum', 'x')
         # ('obesity_change_female_2001_2009', 'x'),
         # ('obesity_change_male_2001_2009', 'x'),
         # ('obesity_prevalence_female_2011', 'x'),

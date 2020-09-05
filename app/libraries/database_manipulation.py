@@ -13,7 +13,7 @@ from erlab_coat.preprocessing import remove_county_word, get_cdc_data, parse_erl
     add_cumsums_to_cases_table, prepare_google_mobility_data
 from erlab_coat.meta import preprocessings, state_abbreviations
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
-    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, Alcohol, ObesityAndLife, Diabetes
+    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, Alcohol, ObesityAndLife, Diabetes, CollegeCovid
 from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime, get_doty_as_datetime
 from app.libraries.queries import get_df_for_variable_query
 
@@ -580,6 +580,29 @@ def newupdate(path=os.path.abspath(os.path.join(application_directory, '../wareh
         row = floatify_dict(row)
         items.append(ObesityAndLife(**row))
     variable_to_entity = update_variable_to_entity(variable_to_entity, row, ObesityAndLife)
+
+    db.session.add_all(items)
+    db.session.commit()
+
+    with open(os.path.join(application_directory, '../warehouse/variable_to_entity.pkl'), 'wb') as handle:
+        pickle.dump(variable_to_entity, handle)
+
+
+def nytimes_college_covid_update(path=os.path.abspath(os.path.join(application_directory, '../warehouse/erlab_covid19_glance/resolution/county/nytimes_us_college_covid.csv'))):
+    with open(os.path.join(application_directory, '../warehouse/variable_to_entity.pkl'), 'rb') as handle:
+        variable_to_entity = pickle.load(handle)
+
+    df = pandas.read_csv(path)
+    df.drop(columns=['Unnamed: 0'], inplace=True)
+    # ---
+    items = []
+    print("college covid...\n")
+
+    for i in tqdm(range(df.shape[0])):
+        row = df.iloc[i, :].to_dict()
+        row = floatify_dict(row)
+        items.append(CollegeCovid(**row))
+    variable_to_entity = update_variable_to_entity(variable_to_entity, row, CollegeCovid)
 
     db.session.add_all(items)
     db.session.commit()
