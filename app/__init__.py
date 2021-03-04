@@ -50,6 +50,10 @@ def create_app(configuration_class: object = Configurations):
     app.register_blueprint(main_blueprint)
     from app.blueprints.results import results_blueprint
     app.register_blueprint(results_blueprint)
+    from app.blueprints.hate_speech_monitor import hate_speech_monitor_blueprint
+    app.register_blueprint(hate_speech_monitor_blueprint)
+    from app.blueprints.tutorial_board import tutorial_board_blueprint
+    app.register_blueprint(tutorial_board_blueprint)
 
     @app.errorhandler(404)
     def error_404(e):

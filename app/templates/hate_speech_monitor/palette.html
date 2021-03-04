@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>OLIVIA Hatespeech Monitor (demo)</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='images/form/icons/favicon.ico')}}"/>
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='fonts/form/font-awesome-4.7.0/css/font-awesome.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/animate/animate.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/select2/select2.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/form/util.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/form/main.css')}}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/blog.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/grapher.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/scoring.css') }}">
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="https://d3js.org/d3.v4.js"></script>
+    <script src="https://d3js.org/topojson.v2.min.js"></script>
+    <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300" rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+
+    <!--===============================================================================================-->
+</head>
+<body>
+
+<div class="bg-contact2" style="background-image: url('{{ url_for('static', filename='images/form/olives.jpg') }}');">
+    <div class="container-contact2">
+        <div class="wrap-contact2" style="width: 1500px">
+<!--            <form class="contact2-form validate-form">-->
+					<span class="contact2-form-title">
+						Hatespeech Monitor
+					</span>
+
+                <div>
+                                <div class="post-description">
+                </div>
+                    <div class="post-description">
+                        {% if mode in ['hate_wordcloud', 'hate_place_statistics', 'hate_trends'] %}
+                        <!--        <div class="wrap-contact2">-->
+                                <div class="chart" id="graph">
+                                <script>
+                                    var graphs = {{data | safe}};
+                                    var layout = {{layout | safe}};
+                                    Plotly.plot('graph',graphs,layout);
+                                </script>
+                            </div>
+                        <!--            </div>-->
+                        {% elif mode in ['hate_top_tweets', 'hate_top_tweets_china'] %}
+                            {%  for x in info_list %}
+                            <div>
+                                <p><b>Date: </b>{{ x['date'] }}</p>
+                                <p><b>Place: </b>{{ x['place_name'] }}</p>
+                                <p><b>Content:</b><br>{{ x['text'] }}</p>
+                            </div>
+                            {% endfor %}
+                        {% endif %}
+                    <p>
+    By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
+                    </p>
+                    </div>
+                <div class="post-description">
+                    <div class="post-description">
+                        <form action="" method="post" id="submission_form" onsubmit="$('.modal').show();" novalidate>
+                            {{ form.hidden_tag() }}
+
+                            <p>
+                                {{ form.place_filter.label }}<br>
+                                <div class="wrap-input2 validate-input" data-validate="Text is required">
+                                    {{ form.place_filter(class_="input2") }}<span class="focus-input2"
+                                                                                data-placeholder=""></span>
+                                </div>
+
+                                <br>
+                                {% for error in form.place_filter.errors %}
+                                <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.min_date.label }}<br>
+                            <div class="wrap-input2 validate-input" data-validate="Message is required">
+                                {{ form.min_date() }}<br>
+                        <span class="focus-input2" data-placeholder=""></span></div>
+                                {% for error in form.min_date.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.max_date.label }}<br>
+                            <div class="wrap-input2 validate-input" data-validate="Message is required">
+                                {{ form.max_date() }}<br>
+                        <span class="focus-input2" data-placeholder=""></span></div>
+                                {% for error in form.max_date.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+
+                            <p>
+                                {{ form.action_choice.label }}<br>
+                                {{ form.action_choice() }}<br>
+                                {% for error in form.action_choice.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>{{ form.submit(type="submit", class="contact2-form-btn", style="height: 10px, width: 10px") }}</p>
+                        </form>
+                </div>
+
+                    <div class="modal">Generating the results, Please wait...</div>
+                </div>
+            {% if not data == {} %}
+<!--        <div class="wrap-contact2">-->
+		<div class="radarChart"></div>
+<!--            </div>-->
+		{% endif %}
+<!--            </form>-->
+        </div>
+
+
+
+    </div>
+
+<script>
+        data = {{json_data | safe}};
+
+        var chart = new Grapher.MotionChart(document.getElementById("visual"));
+         chart.dataSource = data;
+        label_show = "{{ show_labels }}" == "show";
+        if (label_show)
+            chart.labelData = "location";
+        chart.xData = "{{ x_var }}";
+        chart.yData = "{{ y_var }}";
+        chart.radiusData = "{{ size_var }}";
+        chart.colorData = "{{ color_var }}";
+        chart.xScale = d3.scale.linear();
+        chart.draw();
+
+    </script>
+</div>
+
+<script>
+        data = {{chart_data | safe}};
+
+        var margin = {top: 10, right: 10, bottom: 50, left: 50},
+            width = 1500 - margin.left - margin.right,
+            height = 700 - margin.top - margin.bottom;
+
+        var url_county = "{{ url_for('static', filename='counties.json') }}";
+        var tooltip = d3.select("body").append("div")
+            .attr("id", "tooltip")
+            .style("opacity", 0);
+
+        var path = d3.geoPath();
+
+        var svg = d3.select("#visual")
+            .append("svg")
+            .attr("width", width + margin.left + margin.right)
+            .attr("height", height + margin.top + margin.bottom)
+            .append("g")
+            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+        var color_Style = ['red', 'orange', 'aqua', 'blue', 'greenyellow', 'green'];
+
+        function plot_map(data) {
+            var Search = function (id, a, b) {
+                var n = parseInt((a + b) / 2);
+                var x = data[a]["fips"];
+                var y = data[b]["fips"];
+                var z = data[n]["fips"];
+
+                if (id === y) {
+                    return b;
+                } else if (id === x) {
+                    return a;
+                } else if (id === z) {
+                    return n;
+                } else if (id > z) {
+                    return Search(id, n, b);
+                } else if (id < z) {
+                    return Search(id, a, n);
+                } else {
+                    return -1;
+                }
+            };
+
+
+            d3.json(url_county, function (topology) {
+
+                // console.log(data)
+                min_value = d3.min(data.map(function (d) {
+                    return d.score_value;
+                }));
+                max_value = d3.max(data.map(function (d) {
+                    return d.score_value;
+                }));
+
+                var array = new Array();
+                var r = (max_value - min_value) / 6;
+                for (var i = 0; i <= 6; i++) {
+                    array.push(min_value + i * r);
+                }
+                color_Scale = d3.scaleQuantize()
+                    .domain([min_value, max_value])
+                    .range(color_Style);
+
+
+                svg.append("g")
+                    .attr("class", "counties")
+                    .selectAll("path")
+                    .data(topojson.feature(topology, topology.objects.counties).features)
+                    .enter().append("path")
+                    .attr("class", "county")
+                    .attr("d", path)
+                    .attr("fill", function (d, i) {
+                        var pto = data.filter((elem) => elem.fips === d.id)
+                        if (pto[0]) {
+                            return color_Scale(pto[0].score_value)
+                        }
+                    })
+                    .attr("data-fips", (d, i) => d.id)
+                    .attr("data-education", function (d, i) {
+                        var pto = data.filter((elem) => elem.fips === d.id);
+                        if (pto[0]) {
+                            return pto[0].score_value
+                        }
+
+                    })
+                    .attr("data-area", function (d, i) {
+                        var pto = data.filter((elem) => elem.fips === d.id);
+                        if (pto[0]) {
+                            return pto[0].area_name
+                        }
+
+                    })
+
+                    .on('mouseover', function (d, i) {
+
+                        d3.select(this).style("fill", "white");
+                        tooltip.transition()
+                            .duration(100)
+                            .style('opacity', .9);
+                        tooltip.html("Region: " + this.getAttribute("data-area") + "<br>" + "Score: " + this.getAttribute("data-education") + "%")
+                            .attr("data-education", this.getAttribute("data-education"))
+                            .style("left", (d3.event.pageX) + "px")
+                            .style("top", (d3.event.pageY - 30) + "px")
+                            .style('transform', 'translateX(60px)');
+
+                    })
+                    .attr("transform", "translate(100,100 )")
+                    .on('mouseout', function (d, i) {
+
+                        d3.select(this).style("fill", color_Scale(this.getAttribute("data-education")))
+                        tooltip.transition()
+                            .duration(100)
+                            .style('opacity', 0);
+                    });
+
+
+                var g = svg.append("g")
+                    .attr("class", "key")
+                    .attr("id", "legend")
+                    .attr("transform", "translate(0,40)");
+
+                g.selectAll("rect")
+                    .data(color_Style)
+                    .enter().append("rect")
+                    .attr("height", 8)
+                    .attr("x", function (d, i) {
+                        return 30 * i + 100
+                    })
+                    .attr("y", function (d, i) {
+                        return 10
+                    })
+                    .attr("width", 30)
+                    .attr("fill", function (d) {
+                        return d;
+                    });
+
+
+                var linearcolor_Scale = d3.scaleLinear()
+                    .domain([min_value, max_value])
+                    .range([0, 180]);
+
+                var xAxis = d3.axisBottom()
+                    .scale(linearcolor_Scale)
+                    .tickFormat(d3.format("d"))
+                    .tickValues(array);
+                var xAxisGroup = svg.append('g')
+                    .attr('transform', 'translate(100, 60)')
+                    .call(xAxis);
+
+
+            });
+
+        }
+
+        plot_map(data)
+
+
+    </script>
+
+
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/bootstrap/js/popper.js')}}"></script>
+<script src="{{url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/select2/select2.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='js/forms/main.js')}}"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'UA-23581568-13');
+</script>
+
+</body>
+</html>

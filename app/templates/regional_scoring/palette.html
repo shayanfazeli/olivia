@@ -1,90 +1,61 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
-    <title>ERLab Regional Scoring</title>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
-          crossorigin="anonymous">
-
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
-
-    <!--<![endif]-->
-
-
-    <!--[if lte IE 8]>
-            <link rel="stylesheet" href="{{url_for('static', filename='css/layouts/blog-old-ie.css')}}">
-        <![endif]-->
-    <!--[if gt IE 8]><!-->
+    <title>OLIVIA Outbreak Control Regional Scoring</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='images/form/icons/favicon.ico')}}"/>
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='fonts/form/font-awesome-4.7.0/css/font-awesome.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/animate/animate.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/select2/select2.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/form/util.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/form/main.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/blog.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/grapher.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/scoring.css') }}">
-
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="https://d3js.org/d3.v4.js"></script>
     <script src="https://d3js.org/topojson.v2.min.js"></script>
     <script src="https://d3js.org/d3-scale-chromatic.v1.min.js"></script>
-    <link href="https://fonts.googleapis.com/css?family=Open+Sans:100,300,400,600" rel="stylesheet" type="text/css">
-    <link href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
-    <!--<![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300" rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+
+    <!--===============================================================================================-->
 </head>
 <body>
 
-<div id="layout" class="pure-g">
-    <div class="sidebar pure-u-1 pure-u-md-1-4">
-        <div class="header">
-            <h1 class="brand-title">Region Scoring</h1>
-            <h2 class="brand-tagline">Regional Scores based on COVID-19 Health</h2>
-        </div>
-    </div>
+<div class="bg-contact2" style="background-image: url('{{ url_for('static', filename='images/form/olives.jpg') }}');">
+    <div class="container-contact2">
+        <div class="wrap-contact2" style="width: 1500px">
+<!--            <form class="contact2-form validate-form">-->
+					<span class="contact2-form-title">
+						Outbreak Control Regional Scoring
+					</span>
 
-    <div class="content pure-u-1 pure-u-md-3-4">
-        <div>
-            <!-- A wrapper for all the blog posts -->
-            <div class="posts">
-                <!-- A single blog post -->
-                <section class="svg-post">
-                    <header class="post-header">
-
-
-                        <h2 class="post-title">Region Scoring</h2>
-
-
-                    </header>
-
+                <div>
                     <div>
                         <p>
                             {% if not chart_data == '' %}
                                 {#                                    <img class="viscenter" src="{{ url_for('static', filename=output) }}" width="80%"#}
                                 {#                                         height="80%"/>#}
 
-                                <div style="min-width: 1010px; min-height: 513px;">
-                                    <svg id="visual" width="1500" height="700" style="margin: 20px;"/>
+                                <div style="min-width: 1010px; min-height: 804px;">
+                                    <svg id="visual" width="1200" height="800" style="width: 1200px; background: #fff;stop-color: white; background-color: white; margin: 20px;"/>
                                 </div>
 
-{#                                <div>#}
-{#                                    <div>#}
-{#                                        <p><b>Top 10 Regions</b></p>#}
-{#                                        <ul>#}
-{#                                            {% for i in range(10) %}#}
-{#                                                <li>{{ sorted_counties[i] }} - {{ sorted_states[i] }}</li>#}
-{#                                            {% endfor %}#}
-{#                                        </ul>#}
-{#                                    </div>#}
-{#                                    <div>#}
-{#                                        <p><b>Bottom 10 Regions</b></p>#}
-{#                                        <ul>#}
-{#                                            {% for i in range(10) %}#}
-{#                                                <li>{{ sorted_counties[-i] }} - {{ sorted_states[-i] }}</li>#}
-{#                                            {% endfor %}#}
-{#                                        </ul>#}
-{#                                    </div>#}
-{#                                </div>#}
+                                <div>Interesting result? <a href="{{ url_for('contact.send_finding') }}">Share it with everyone!</a></div>
 
                                 {#                                <div><button class="downloadButton" onclick="window.location.href = '{{ url_for('static', filename=download_link) }}';"><i class="fa fa-download"></i>Data</button></div>#}
 
@@ -93,7 +64,6 @@
                             {% endif %}
                         </p>
                     </div>
-
                     <div class="post-description">
                         <form action="" method="post" id="submission_form" onsubmit="$('.modal').show();" novalidate>
                             {{ form.hidden_tag() }}
@@ -134,20 +104,27 @@
                             </p><br>
                             <p>{{ form.submit() }}</p>
                         </form>
-                        <p>
-                            By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
-                        </p>
+                    <p>
+    By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
+                    </p>
                     </div>
                     <div class="modal">Generating the results, Please wait...</div>
-                </section>
-            </div>
-
-
+                </div>
+            {% if not data == {} %}
+<!--        <div class="wrap-contact2">-->
+		<div class="radarChart"></div>
+<!--            </div>-->
+		{% endif %}
+<!--            </form>-->
         </div>
+
+
+
     </div>
 
+</div>
 
-    <script>
+<script>
         data = {{chart_data | safe}};
 
         var margin = {top: 10, right: 10, bottom: 50, left: 50},
@@ -308,6 +285,30 @@
 
     </script>
 
+
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/bootstrap/js/popper.js')}}"></script>
+<script src="{{url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/select2/select2.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='js/forms/main.js')}}"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'UA-23581568-13');
+</script>
 
 </body>
 </html>

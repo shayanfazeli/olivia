@@ -8,12 +8,12 @@ from erlab_coat.meta import label2description
 from erlab_coat.preprocessing import doty_to_date, olivia_interpolation, add_location_to_df, \
     add_day_of_the_year_to_cases_table
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
-    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, ObesityAndLife, Alcohol, Diabetes
+    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, ObesityAndLife, Alcohol, Diabetes, TweetTable1
 from app import application_directory
 from app.libraries.utilities import floatify_df
 import sys
 import time
-from typing import Union
+from typing import Union, List
 
 
 def get_datetime_object_from_date_string(
@@ -54,6 +54,47 @@ def get_datetime_object_from_date_string(
         raise ValueError
 
     return output
+
+
+def get_tweets_df_from_table1(
+        db,
+        place_names: List[str],
+        min_date: str,
+        max_date: str,
+):
+    def fix_place_names(x: str) -> str:
+        out1 = [e for e in x.split(' ')]
+        out = []
+        for e in out1:
+            out.append(e[0].upper() + e[1:].lower())
+        return " ".join(out)
+
+    place_names = [fix_place_names(e) for e in place_names]
+    df = db.session.query(
+        TweetTable1.place_name,
+        TweetTable1.tweet_id,
+        TweetTable1.confirmed_date,
+        TweetTable1.hate_prob,
+        TweetTable1.counterhate_prob,
+        TweetTable1.neutral_prob,
+        TweetTable1.other_prob,
+        TweetTable1.text
+    )
+    assert min_date is not None
+    assert max_date is not None
+    df = df.filter(TweetTable1.confirmed_date >= get_datetime_object_from_date_string(min_date))
+    df = df.filter(TweetTable1.confirmed_date <= get_datetime_object_from_date_string(max_date))
+    if len(place_names) > 0:
+        df = df.filter(TweetTable1.place_name.in_(place_names))
+
+    df = df.limit(10000)
+
+    columns = ['place_name', 'tweet_id', 'confirmed_date', 'hate_prob', 'counterhate_prob', 'neutral_prob', 'other_prob', 'text']
+    df = pandas.DataFrame(data=df.all(), columns=columns)
+
+    df.rename({'confirmed_date': 'date'}, axis=1, inplace=True)
+
+    return df
 
 
 def get_df_for_county_scoring(
@@ -152,6 +193,7 @@ def get_df_for_county_scoring(
     df.reset_index(inplace=True)
 
     sorted_df = df.copy().sort_values(by='score', ascending=False)
+
     sorted_counties = sorted_df['county'].tolist()
     sorted_states = sorted_df['state'].tolist()
 
@@ -346,6 +388,7 @@ def get_data_for_query(
 
     if interpolate:
         output_df = olivia_interpolation(output_df)
+        output_df.confirmed_date = output_df.day_of_the_year.copy().apply(lambda x: str(date(2020, 1, 1) + timedelta(days=x)))
 
     t3 = time.time()
     print("\ninterpolated - time spent: {}\n".format(t3 - t2), file=sys.stderr)

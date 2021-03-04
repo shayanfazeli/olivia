@@ -322,5 +322,22 @@ class CollegeCovid(db.Model):
     __table_args__ = (db.Index('myindex_college_covid', 'county', 'state', unique=True), db.UniqueConstraint('county', 'state'))
 
 
+class TweetTable1(db.Model):
+    __tablename__ = "tweet_table_1"
+    id = db.Column(db.Integer, primary_key=True)
+    tweet_id = db.Column(db.String(255))
+    place_name = db.Column(db.String(255))
+    confirmed_date = db.Column(db.DateTime)
+    text = db.Column(db.String(300))
+    hate_prob = db.Column(db.Float, nullable=True)
+    counterhate_prob = db.Column(db.Float, nullable=True)
+    neutral_prob = db.Column(db.Float, nullable=True)
+    other_prob = db.Column(db.Float, nullable=True)
 
 
+class PoliceShootingPerMonth(db.Model):
+    __tablename__ = "police_shooting_per_month"
+    id = db.Column(db.Integer, primary_key=True)
+    state = db.Column(db.String(255))
+    confirmed_date = db.Column(db.DateTime)
+    shooting_count = db.Column(db.Float, nullable=True)

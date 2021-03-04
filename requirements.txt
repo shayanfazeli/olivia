@@ -20,3 +20,5 @@ boto3==1.13.11
 sqlalchemy-aurora-data-api==0.2.0
 psycopg2-binary==2.8.4
 email_validator
+plotly==4.14.3
+plotly-express==0.4.1

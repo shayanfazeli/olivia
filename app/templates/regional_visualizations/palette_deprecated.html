@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
+    <title>ERLab COVID-19 Monitor for US Counties</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
+          crossorigin="anonymous">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+
+    <!--<![endif]-->
+
+
+    <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{{url_for('static', filename='css/layouts/blog-old-ie.css')}}">
+        <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/blog.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/grapher.css') }}">
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/grapher.js') }}"></script>
+    <script type="text/javascript" src="{{ url_for('static', filename='js/d3_grapher.js') }}"></script>
+    <!--<![endif]-->
+</head>
+<body>
+
+<div id="layout" class="pure-g">
+    <div class="sidebar pure-u-1 pure-u-md-1-4">
+        <div class="header">
+            <h1 class="brand-title">US COVID-19 vs Region Features</h1>
+            <h2 class="brand-tagline">A County-based Integration of COVID-19 Outbreak Across US Regions and Their
+                Corresponding Features</h2>
+        </div>
+    </div>
+
+    <div class="content pure-u-1 pure-u-md-3-4">
+        <div>
+            <!-- A wrapper for all the blog posts -->
+            <div class="posts">
+                <!-- A single blog post -->
+                <section class="svg-post">
+                    <header class="post-header">
+
+
+                        <h2 class="post-title">Region-based COVID-19 Outbreak Monitor</h2>
+
+
+                    </header>
+
+                    <div>
+                        <p>
+                            {% if not json_data == '' %}
+                                {#                                    <img class="viscenter" src="{{ url_for('static', filename=output) }}" width="80%"#}
+                                {#                                         height="80%"/>#}
+
+                                <div style="min-width: 1010px; min-height: 804px;">
+                                    <svg id="visual" width="1000" height="800" style="margin: 20px;"/>
+                                </div>
+
+                                <div>Interesting result? <a href="{{ url_for('contact.send_finding') }}">Share it with everyone!</a></div>
+
+                                {#                                <div><button class="downloadButton" onclick="window.location.href = '{{ url_for('static', filename=download_link) }}';"><i class="fa fa-download"></i>Data</button></div>#}
+
+                            {% else %}
+                                <p class="descriptionEr">Please click plot to continue.</p>
+                            {% endif %}
+                        </p>
+                    </div>
+
+                    <div class="post-description">
+                        <form action="" method="post" id="submission_form" onsubmit="$('.modal').show();" novalidate>
+                            {{ form.hidden_tag() }}
+                            <p>
+                                {{ form.x_var.label }}<br>
+                                {{ form.x_var() }}<br>
+                                {% for error in form.x_var.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.y_var.label }}<br>
+                                {{ form.y_var() }}<br>
+                                {% for error in form.y_var.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.color_var.label }}<br>
+                                {{ form.color_var() }}<br>
+                                {% for error in form.color_var.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.size_var.label }}<br>
+                                {{ form.size_var() }}<br>
+                                {% for error in form.size_var.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.show_labels.label }}<br>
+                                {{ form.show_labels() }}<br>
+                                {% for error in form.show_labels.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.resolution.label }}<br>
+                                {{ form.resolution() }}<br>
+                                {% for error in form.resolution.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.state_filter.label }}<br>
+                                {{ form.state_filter() }}<br>
+                                {% for error in form.state_filter.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>
+                                {{ form.county_filter.label }}<br>
+                                {{ form.county_filter() }}<br>
+                                {% for error in form.county_filter.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </p>
+                            <p>{{ form.submit() }}</p>
+                        </form>
+                    <p>
+    By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
+                    </p>
+                    </div>
+                    <div class="modal">Generating the results, Please wait...</div>
+                </section>
+            </div>
+
+
+        </div>
+    </div>
+
+
+    <script>
+        data = {{json_data | safe}};
+
+        var chart = new Grapher.MotionChart(document.getElementById("visual"));
+         chart.dataSource = data;
+        label_show = "{{ show_labels }}" == "show";
+        if (label_show)
+            chart.labelData = "location";
+        chart.xData = "{{ x_var }}";
+        chart.yData = "{{ y_var }}";
+        chart.radiusData = "{{ size_var }}";
+        chart.colorData = "{{ color_var }}";
+        chart.xScale = d3.scale.linear();
+        chart.draw();
+
+    </script>
+</div>
+
+
+</body>
+</html>

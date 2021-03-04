@@ -43,6 +43,7 @@ def regional_scoring():
             min_date=str(form.min_date.data),
             normalize=True
         )
+
         fips = pandas.read_csv(os.path.join(application_directory, 'static/fips_choropleth.csv'))
         df = pandas.merge(left=df, right=fips, on=['county', 'state'], how='outer')
         df['score'] = df['score'].fillna('Insufficient Data')
@@ -55,6 +56,13 @@ def regional_scoring():
 
         df.fips = df.fips.apply(lambda x: int(x))
         df.rename({'score': 'score_value', 'county': 'area_name'}, inplace=True, axis=1, errors='raise')
+
+        def rounder(x):
+            try:
+                return round(float(x), 2)
+            except:
+                return x
+        df.score_value = df.score_value.apply(rounder)
         chart_data = df.to_dict(orient='records')
         chart_data = json.dumps(chart_data, indent=2)
         return render_template(

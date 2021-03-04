@@ -1,0 +1,202 @@
+<!doctype html>
+
+{#Template License: Software License Agreement (BSD License) FOR THE INDEX.HTML#}
+{#========================================#}
+{##}
+{#Copyright 2013 Yahoo! Inc. All rights reserved.#}
+{##}
+{#Redistribution and use in source and binary forms, with or without#}
+{#modification, are permitted provided that the following conditions are met:#}
+{##}
+{#    * Redistributions of source code must retain the above copyright#}
+{#      notice, this list of conditions and the following disclaimer.#}
+{##}
+{#    * Redistributions in binary form must reproduce the above copyright#}
+{#      notice, this list of conditions and the following disclaimer in the#}
+{#      documentation and/or other materials provided with the distribution.#}
+{##}
+{#    * Neither the name of the Yahoo! Inc. nor the#}
+{#      names of its contributors may be used to endorse or promote products#}
+{#      derived from this software without specific prior written permission.#}
+{##}
+{#THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND#}
+{#ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED#}
+{#WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE#}
+{#DISCLAIMED. IN NO EVENT SHALL YAHOO! INC. BE LIABLE FOR ANY#}
+{#DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES#}
+{#(INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;#}
+{#LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND#}
+{#ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT#}
+{#(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS#}
+{#SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.#}
+
+
+
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="A layout example that shows off a responsive product landing page.">
+    <title>OLIVIA - ERLAB</title>
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
+          crossorigin="anonymous">
+
+    <!--[if lte IE 8]>
+        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
+    <![endif]-->
+    <!--[if gt IE 8]><!-->
+    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
+    <!--<![endif]-->
+
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css">
+
+    <!--[if lte IE 8]>
+            <link rel="stylesheet" href="{{ url_for('static', filename="css/layouts/marketing-old-ie.css")}}">
+        <![endif]-->
+    <!--[if gt IE 8]><!-->
+
+    <link rel="stylesheet" href="{{ url_for('static', filename="css/layouts/marketing.css") }}" type="text/css">
+    <!--<![endif]-->
+</head>
+<body>
+
+{#<div class="header">#}
+{#    <div class="home-menu pure-menu pure-menu-horizontal pure-menu-fixed">#}
+{#        <a class="pure-menu-heading" href="">ER Lab - Analytics Platform</a>#}
+{#    </div>#}
+{#</div>#}
+
+<div class="splash-container">
+    <div class="splash">
+        <h1 class="splash-head">OLIVIA</h1>
+        <p class="splash-subhead">
+        <p style="color: white">
+            "It's not what happens to you, but how you react to it that matters."
+        </p>
+        <p style="color: whitesmoke"> -
+            <it>Epictetus</it>
+        </p>
+        </p>
+
+    </div>
+</div>
+
+
+<div class="content-wrapper">
+
+
+    <div class="ribbon l-box-lrg pure-g">
+
+        <div class="pure-u-1 pure-u-md-1-2 pure-u-lg-3-5 is-center">
+            <h2 class="content-head content-head-ribbon">US COVID-19 Outbreak Analytics</h2>
+
+            <p>
+                <a href="{{ url_for('regional_visualizations.regional_visualization') }}"
+                   style="width: 700px; background-color: cornflowerblue; color: white" target="_blank"
+                   class="pure-button pure-button-primary">Region-based COVID-19 Statistics Platform</a>
+            </p>
+            <p>
+                <a href="{{ url_for('regional_comparisons.regional_comparisons') }}"
+                   style="width: 700px; background-color: cornflowerblue; color: white" target="_blank"
+                   class="pure-button pure-button-primary">Regional Comparisons</a>
+            </p>
+            <p>
+                <a href="{{ url_for('regional_scoring.regional_scoring') }}"
+                   style="width: 700px; background-color: cornflowerblue; color: white" target="_blank"
+                   class="pure-button pure-button-primary">Region Scoring</a>
+            </p>
+            <p>
+                <a href="{{ url_for('results.findings') }}"
+                   style="width: 700px; background-color: cornflowerblue; color: white" target="_blank"
+                   class="pure-button pure-button-primary">Interesting Findings</a>
+            </p>
+            <p>
+                <a href="{{ url_for('contact.send_finding') }}"
+                   style="width: 700px; background-color: cornflowerblue; color: white" target="_blank"
+                   class="pure-button pure-button-primary">Share Your Finding</a>
+            </p>
+        </div>
+    </div>
+
+
+    <div class="ribbon l-box-lrg pure-g" style="background-color: #008CBA">
+{#        <div class="l-box-lrg is-center pure-u-1 pure-u-md-1-2 pure-u-lg-2-5">#}
+{#            <img width="300" alt="File Icons" class="pure-img-responsive"#}
+{#                 src="{{ url_for('static', filename="img/common/file-icons2.png") }}">#}
+{#        </div>#}
+        <div class="pure-u-1 pure-u-md-1-2 pure-u-lg-3-5  is-center">
+
+            <h2 class="content-head content-head-ribbon">CoronAI: Deep Information Extraction for COVID-19-related
+                Articles</h2>
+
+            <p>
+                <a href="https://medium.com/@shayan.fazeli/coronai-deep-information-extraction-for-covid-19-related-articles-f7c016149586?sk=80cd4fb635854934083f2c2dd26b66b2"
+                   style="width: 700px"
+                   class="pure-button pure-button-primary">Article</a>
+            </p>
+            <p>
+                <a href="https://github.com/shayanfazeli/coronai" style="width: 700px"
+                   class="pure-button pure-button-primary">Source Code</a>
+            </p>
+            <p>
+                <a href="http://web.cs.ucla.edu/~shayan/coronai/docs/" style="width: 700px"
+                   class="pure-button pure-button-primary">Documentation</a>
+            </p>
+            <p>
+                <a href="https://github.com/shayanfazeli/word_embedding_warehouse" style="width: 700px"
+                   class="pure-button pure-button-primary">Word Embedding Builder Toolkit</a>
+            </p>
+            <p>
+                <a href="http://web.cs.ucla.edu/~shayan/word_embedding_warehouse/docs/" style="width: 700px"
+                   class="pure-button pure-button-primary">Word Embedding Builder Documentation</a>
+            </p>
+            <p>
+                <a href="{{ url_for('tweets.tweets_of_the_day') }}"
+                   style="width: 700px;" target="_blank"
+                   class="pure-button pure-button-primary">Extra: COVID-19 Tweet Analysis</a>
+            </p>
+
+        </div>
+    </div>
+
+    <div class="ribbon l-box-lrg pure-g" style="background-color: #00686b">
+{#        <div class="l-box-lrg is-center pure-u-1 pure-u-md-1-2 pure-u-lg-2-5">#}
+{#            <div width="10" class="pure-img-responsive"></div>#}
+{#        </div>#}
+        <div class="pure-u-1 pure-u-md-1-2 pure-u-lg-3-5 is-center">
+
+            <h2 class="content-head content-head-ribbon">Quick Overview</h2>
+{#            <div style="border: 2px; border-style: double; width: 700px; letter-spacing: 0.1em; margin-left: 43%; ">#}
+{#                <video width="700px" height="300px" controls>#}
+{#                    <source src="{{ url_for('static', filename='videos/OLIVIA.mp4') }}" type="video/mp4"/>#}
+{#                </video>#}
+{#            </div>#}
+            <div style="border: 2px; border-style: double;">
+                <video width="690px" height="300px" controls>
+                    <source src="{{ url_for('static', filename='videos/OLIVIA.mp4') }}" type="video/mp4"/>
+                </video>
+            </div>
+        </div>
+    </div>
+
+
+    <div class="content">
+        <h2 class="content-head is-center">ER Lab - 2020</h2>
+
+
+        <div class="l-box-lrg pure-u-1 pure-u-md-3-5">
+            <h4>Contact</h4>
+            <p>
+                Email: <a href="mailto:shayan@cs.ucla.edu">shayan@cs.ucla.edu</a> <br>
+            </p>
+        </div>
+    </div>
+
+</div>
+
+
+</div>
+
+
+</body>
+</html>

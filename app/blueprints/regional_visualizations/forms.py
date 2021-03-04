@@ -4,6 +4,7 @@ from wtforms.validators import NumberRange, DataRequired, Email
 import email_validator
 import operator
 from erlab_coat.meta import label2description
+label2description['shooting_count'] = 'Police Shootings per State'
 
 
 def fetch_latest_descriptions_for_choices(in_tuples):
@@ -136,7 +137,9 @@ class CoatPlotD3Form(FlaskForm):
         ('google_mobility_residential_percent_change_from_baseline', 'x'),
 
         ('average_college_total_confirmed_count_cumsum', 'x'),
-        ('average_college_medunit_confirmed_count_cumsum', 'x')
+        ('average_college_medunit_confirmed_count_cumsum', 'x'),
+
+        ('shooting_count', 'x')
 
         # - health data
         # ('obesity_change_female_2001_2009', 'x'),
@@ -210,6 +213,7 @@ class CoatPlotD3Form(FlaskForm):
         # ('alcohol_change_type_binge_sex_male_2005_2012', 'x'),
         # ('alcohol_change_type_prop_heavy_sex_male_2005_2012', 'x'),
         # ('alcohol_change_type_prop_binge_sex_male_2005_2012', 'x')
+
     ]
     x_choices = fetch_latest_descriptions_for_choices(x_choices)
     x_choices.sort(key=operator.itemgetter(1))
@@ -344,7 +348,9 @@ class CoatPlotD3Form(FlaskForm):
          'Changes in Mobility From Baseline - Retail and Recreation'),
         ('google_mobility_residential_percent_change_from_baseline', 'Changes in Mobility From Baseline - Residential'),
         ('average_college_total_confirmed_count_cumsum', 'x'),
-        ('average_college_medunit_confirmed_count_cumsum', 'x')
+        ('average_college_medunit_confirmed_count_cumsum', 'x'),
+
+        ('shooting_count', 'x')
         # ('obesity_change_female_2001_2009', 'x'),
         # ('obesity_change_male_2001_2009', 'x'),
         # ('obesity_prevalence_female_2011', 'x'),
@@ -550,7 +556,9 @@ class CoatPlotD3Form(FlaskForm):
          'Changes in Mobility From Baseline - Retail and Recreation'),
         ('google_mobility_residential_percent_change_from_baseline', 'Changes in Mobility From Baseline - Residential'),
         ('average_college_total_confirmed_count_cumsum', 'x'),
-        ('average_college_medunit_confirmed_count_cumsum', 'x')
+        ('average_college_medunit_confirmed_count_cumsum', 'x'),
+
+        ('shooting_count', 'x')
         # ('obesity_change_female_2001_2009', 'x'),
         # ('obesity_change_male_2001_2009', 'x'),
         # ('obesity_prevalence_female_2011', 'x'),

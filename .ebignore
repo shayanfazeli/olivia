@@ -3,6 +3,7 @@
 app/static/plot_jsons/*
 app/static/plot_files/plot*
 app/static/recent_tables/df*
+app/static/sample_hate_monitor.csv
 
 app/erlab_coat
 

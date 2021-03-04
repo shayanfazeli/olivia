@@ -6,7 +6,7 @@
 
 a {
     text-decoration: none;
-    color: rgb(61, 146, 201);
+    color: rgb(15, 134, 77);
 }
 
 a:hover,
@@ -47,7 +47,7 @@ h1 {
 }
 
 .sidebar {
-    background: rgb(55, 0, 179);
+    background: rgb(226, 200, 0);
     color: #fff;
 }
 
@@ -89,7 +89,7 @@ h1 {
 
 .nav-item a:hover,
 .nav-item a:focus {
-    border: 2px solid rgb(61, 146, 201);
+    border: 2px solid rgb(15, 134, 77);
     text-decoration: none;
 }
 
@@ -133,7 +133,7 @@ h1 {
 }
 
 .post-header {
-  background-image: linear-gradient(to bottom right, #ad8fff, #b3daff);
+  background-image: linear-gradient(to bottom right, #0f864d, #25f30d);
   border-radius: 10px;
   padding: 5px;
   margin-bottom: 5px;
@@ -259,7 +259,7 @@ h1 {
 
 
 input[type=submit] {
-    background-color: #008CBA;
+    background-color: #0f864d;
     border: none;
     color: white;
     padding: 15px 32px;
@@ -341,7 +341,7 @@ body.loading .modal {
 }
 
 .downloadButton {
-  background-color: #135eff;
+  background-color: #0f864d;
   border: none;
   color: white;
   padding: 12px 30px;
@@ -352,5 +352,5 @@ body.loading .modal {
 
 /* Darker background on mouse-over */
 .downloadButton:hover {
-  background-color: #00015d;
+  background-color: #00686b;
 }

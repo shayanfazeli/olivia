@@ -1,59 +1,49 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="A layout example that shows off a blog page with a list of posts.">
-    <title>ERLab COVID-19 Monitor for US Counties</title>
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/pure-min.css" integrity="sha384-"
-          crossorigin="anonymous">
-
-    <!--[if lte IE 8]>
-        <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-old-ie-min.css">
-    <![endif]-->
-    <!--[if gt IE 8]><!-->
-    <link rel="stylesheet" href="https://unpkg.com/purecss@1.0.1/build/grids-responsive-min.css">
-
-    <!--<![endif]-->
-
-
-    <!--[if lte IE 8]>
-            <link rel="stylesheet" href="{{url_for('static', filename='css/layouts/blog-old-ie.css')}}">
-        <![endif]-->
-    <!--[if gt IE 8]><!-->
+    <title>OLIVIA COVID-19 Monitor for US Counties</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!--===============================================================================================-->
+    <link rel="icon" type="image/png" href="{{url_for('static', filename='images/form/icons/favicon.ico')}}"/>
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='vendor/bootstrap/css/bootstrap.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='fonts/form/font-awesome-4.7.0/css/font-awesome.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/animate/animate.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='vendor/css-hamburgers/hamburgers.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='vendor/select2/select2.min.css')}}">
+    <!--===============================================================================================-->
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/form/util.css')}}">
+    <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='css/form/main.css')}}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/blog.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/layouts/grapher.css') }}">
-
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/grapher.js') }}"></script>
     <script type="text/javascript" src="{{ url_for('static', filename='js/d3_grapher.js') }}"></script>
-    <!--<![endif]-->
+    <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,300" rel='stylesheet' type='text/css'>
+		<link href='https://fonts.googleapis.com/css?family=Raleway' rel='stylesheet' type='text/css'>
+
+    <!--===============================================================================================-->
 </head>
 <body>
 
-<div id="layout" class="pure-g">
-    <div class="sidebar pure-u-1 pure-u-md-1-4">
-        <div class="header">
-            <h1 class="brand-title">US COVID-19 vs Region Features</h1>
-            <h2 class="brand-tagline">A County-based Integration of COVID-19 Outbreak Across US Regions and Their
-                Corresponding Features</h2>
-        </div>
-    </div>
+<div class="bg-contact2" style="background-image: url('{{ url_for('static', filename='images/form/olives.jpg') }}');">
+    <div class="container-contact2">
+        <div class="wrap-contact2" style="width: 1500px">
+<!--            <form class="contact2-form validate-form">-->
+					<span class="contact2-form-title">
+						Region-based COVID-19 Outbreak Monitor
+					</span>
 
-    <div class="content pure-u-1 pure-u-md-3-4">
-        <div>
-            <!-- A wrapper for all the blog posts -->
-            <div class="posts">
-                <!-- A single blog post -->
-                <section class="svg-post">
-                    <header class="post-header">
-
-
-                        <h2 class="post-title">Region-based COVID-19 Outbreak Monitor</h2>
-
-
-                    </header>
-
+                <div>
                     <div>
                         <p>
                             {% if not json_data == '' %}
@@ -61,7 +51,7 @@
                                 {#                                         height="80%"/>#}
 
                                 <div style="min-width: 1010px; min-height: 804px;">
-                                    <svg id="visual" width="1000" height="800" style="margin: 20px;"/>
+                                    <svg id="visual" width="1200" height="800" style="width: 1200px; background: #fff;stop-color: white; fill-: white; background-color: white; margin: 20px;"/>
                                 </div>
 
                                 <div>Interesting result? <a href="{{ url_for('contact.send_finding') }}">Share it with everyone!</a></div>
@@ -73,7 +63,6 @@
                             {% endif %}
                         </p>
                     </div>
-
                     <div class="post-description">
                         <form action="" method="post" id="submission_form" onsubmit="$('.modal').show();" novalidate>
                             {{ form.hidden_tag() }}
@@ -114,41 +103,58 @@
                             </p>
                             <p>
                                 {{ form.resolution.label }}<br>
-                                {{ form.resolution() }}<br>
+                                <div class="wrap-input2 validate-input" data-validate="Message is required">
+                                    {{ form.resolution(class_="input2") }}<br>
+                                <span class="focus-input2" data-placeholder=""></span></div>
                                 {% for error in form.resolution.errors %}
                                     <span style="color: red;">[{{ error }}]</span>
                                 {% endfor %}
                             </p>
                             <p>
                                 {{ form.state_filter.label }}<br>
-                                {{ form.state_filter() }}<br>
+                                <div class="wrap-input2 validate-input" data-validate="Text is required">
+                                    {{ form.state_filter(class_="input2") }}<span class="focus-input2"
+                                                                                data-placeholder=""></span>
+                                </div>
+
+                                <br>
                                 {% for error in form.state_filter.errors %}
-                                    <span style="color: red;">[{{ error }}]</span>
+                                <span style="color: red;">[{{ error }}]</span>
                                 {% endfor %}
                             </p>
                             <p>
                                 {{ form.county_filter.label }}<br>
-                                {{ form.county_filter() }}<br>
+                                <div class="wrap-input2 validate-input" data-validate="Text is required">
+                                    {{ form.county_filter(class_="input2") }}<span class="focus-input2"
+                                                                                data-placeholder=""></span>
+                                </div>
+
+                                <br>
                                 {% for error in form.county_filter.errors %}
-                                    <span style="color: red;">[{{ error }}]</span>
+                                <span style="color: red;">[{{ error }}]</span>
                                 {% endfor %}
                             </p>
-                            <p>{{ form.submit() }}</p>
+                            <p>{{ form.submit(type="submit", class="contact2-form-btn", style="height: 10px, width: 10px") }}</p>
                         </form>
                     <p>
     By <a href="http://er.cs.ucla.edu" class="post-author">ER Lab</a>
                     </p>
                     </div>
                     <div class="modal">Generating the results, Please wait...</div>
-                </section>
-            </div>
-
-
+                </div>
+            {% if not data == {} %}
+<!--        <div class="wrap-contact2">-->
+		<div class="radarChart"></div>
+<!--            </div>-->
+		{% endif %}
+<!--            </form>-->
         </div>
+
+
+
     </div>
 
-
-    <script>
+<script>
         data = {{json_data | safe}};
 
         var chart = new Grapher.MotionChart(document.getElementById("visual"));
@@ -166,6 +172,77 @@
     </script>
 </div>
 
+<script src="{{url_for('static', filename='js/radarChart.js')}}"></script>
+		<script>
+
+      /* Radar chart design created by Nadieh Bremer - VisualCinnamon.com */
+
+			//////////////////////////////////////////////////////////////
+			//////////////////////// Set-Up //////////////////////////////
+			//////////////////////////////////////////////////////////////
+
+			var margin = {top: 100, right: 100, bottom: 100, left: 100},
+				width = Math.min(700, window.innerWidth - 10) - margin.left - margin.right,
+				height = Math.min(width, window.innerHeight - margin.top - margin.bottom - 20);
+
+			//////////////////////////////////////////////////////////////
+			////////////////////////// Data //////////////////////////////
+			//////////////////////////////////////////////////////////////
+
+			// var data = [
+			// 		  [//iPhone
+			// 			{"axis":"Hate","value":0.95},
+			// 			{"axis":"Counter-Hate","value":0.03},
+			// 			{"axis":"Neutral","value":0.03},
+			// 			{"axis":"Other","value":0.02},
+			// 		  ],
+			// 		];
+	  		var data = [{{ data | safe }}];
+			//////////////////////////////////////////////////////////////
+			//////////////////// Draw the Chart //////////////////////////
+			//////////////////////////////////////////////////////////////
+
+			var color = d3.scale.ordinal()
+				.range(["#CC333F", "#EDC951","#00A0B0"]);
+
+			var radarChartOptions = {
+			  w: width,
+			  h: height,
+			  margin: margin,
+			  maxValue: 0.5,
+			  levels: 5,
+			  roundStrokes: true,
+			  color: color
+			};
+			//Call function to draw the Radar chart
+			RadarChart(".radarChart", data, radarChartOptions);
+		</script>
+
+
+
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/jquery/jquery-3.2.1.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/bootstrap/js/popper.js')}}"></script>
+<script src="{{url_for('static', filename='vendor/bootstrap/js/bootstrap.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='vendor/select2/select2.min.js')}}"></script>
+<!--===============================================================================================-->
+<script src="{{url_for('static', filename='js/forms/main.js')}}"></script>
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-23581568-13"></script>
+<script>
+    window.dataLayer = window.dataLayer || [];
+
+    function gtag() {
+        dataLayer.push(arguments);
+    }
+
+    gtag('js', new Date());
+
+    gtag('config', 'UA-23581568-13');
+</script>
 
 </body>
 </html>

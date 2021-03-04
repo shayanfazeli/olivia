@@ -9,13 +9,55 @@ from app import db, application_directory
 import pandas
 import numpy
 import os
+from copy import deepcopy
 from erlab_coat.preprocessing import remove_county_word, get_cdc_data, parse_erlab_covid19_glance_collection, \
     add_cumsums_to_cases_table, prepare_google_mobility_data
 from erlab_coat.meta import preprocessings, state_abbreviations
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
-    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, Alcohol, ObesityAndLife, Diabetes, CollegeCovid
+    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, Alcohol, ObesityAndLife, Diabetes, CollegeCovid, TweetTable1, PoliceShootingPerMonth
 from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime, get_doty_as_datetime
 from app.libraries.queries import get_df_for_variable_query
+
+
+def update_police_shooting_per_month_table():
+    df = pandas.read_csv(os.path.join(application_directory, '../warehouse/erlab_covid19_glance/resolution/state/police_shooting_clean_filled.csv')).drop(columns=['Unnamed: 0'])
+    for i in tqdm(range(df.shape[0])):
+        row = df.iloc[i].to_dict()
+        row['confirmed_date'] = pandas.to_datetime(row['date']).to_pydatetime()
+        row['shooting_count'] = float(row['count'])
+        del row['count']
+        del row['date']
+        db.session.add(PoliceShootingPerMonth(**row))
+
+    import pdb
+    pdb.set_trace()
+
+    db.session.commit()
+
+
+def update_tweet_table_1_from_local_csv():
+    df = pandas.read_csv(os.path.join(application_directory, 'static/sample_hate_monitor.csv'), lineterminator='\n')
+    df = df.loc[:, ['place_name', 'date', 'hate_prob', 'counterhate_prob', 'other_prob', 'neutral_prob', 'text', 'id']]
+    df = df.iloc[:10000]
+    for i in tqdm(range(df.shape[0])):
+        row = df.iloc[i].to_dict()
+        bundle = {
+            'place_name': str(row['place_name']),
+            'tweet_id': str(row['id']),
+            'hate_prob': float(row['hate_prob']),
+            'counterhate_prob': float(row['counterhate_prob']),
+            'neutral_prob': float(row['neutral_prob']),
+            'other_prob': float(row['other_prob']),
+            'text': str(row['text'])
+        }
+        bundle['confirmed_date'] = pandas.to_datetime(row['date']).to_pydatetime()
+        bundle = deepcopy(bundle)
+        db.session.add(TweetTable1(**bundle))
+
+    import pdb
+    pdb.set_trace()
+
+    db.session.commit()
 
 
 def preprocess_collection_for_database(path):

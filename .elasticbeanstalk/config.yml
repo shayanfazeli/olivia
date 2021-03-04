@@ -1,19 +1,27 @@
 branch-defaults:
   flask_run:
     environment: covid19-staging
+  master:
+    environment: newolivia1-dev
+    group_suffix: null
 environment-defaults:
+  newolivia1:
+    branch: null
+    repository: null
   olivia:
     branch: null
     repository: null
 global:
-  application_name: covid19
-  default_ec2_keyname: covid
+  application_name: newolivia1
+  branch: null
+  default_ec2_keyname: newolivia1
   default_platform: Python 3.7 running on 64bit Amazon Linux 2
   default_region: us-west-2
   include_git_submodules: true
   instance_profile: null
   platform_name: null
   platform_version: null
-  profile: eb-cli
+  profile: null
+  repository: null
   sc: git
   workspace_type: Application
