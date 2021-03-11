@@ -21,7 +21,9 @@ class Configurations(object):
     #SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///' + os.path.join(base_directory, 'visierra_database.db')
     # SQLALCHEMY_DATABASE_URI = 'mysql+auroradataapi://olivia:erlab391@olivia-db.cluster-ce8jt52rjpad.us-west-2.rds.amazonaws.com:3306/olivia'
 
-    SQLALCHEMY_DATABASE_URI = 'postgresql://oliviaadmin:erlab391@oliviadb.ce8jt52rjpad.us-west-2.rds.amazonaws.com/olivia'
+    SQLALCHEMY_DATABASE_URI = 'postgresql://oliviaadmin:erlab391@oliviadbstaging2-cluster.cluster-ro-ce8jt52rjpad.us-west-2.rds.amazonaws.com/olivia'
+    #SQLALCHEMY_DATABASE_URI = 'postgresql://oliviaadmin:erlab391@oliviadbstaging2-cluster.cluster-ce8jt52rjpad.us-west-2.rds.amazonaws.com/olivia'
+
     # SQLALCHEMY_ENGINE_OPTIONS = {
     #     "connect_args": {
     #         "aurora_cluster_arn": "arn:aws:rds:us-west-2:014105426514:cluster:oliviadb",

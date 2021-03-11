@@ -341,3 +341,12 @@ class PoliceShootingPerMonth(db.Model):
     state = db.Column(db.String(255))
     confirmed_date = db.Column(db.DateTime)
     shooting_count = db.Column(db.Float, nullable=True)
+
+
+class StateCumulativeCovidVaccines(db.Model):
+    __tablename__ = "state_cumulative_covid_vaccines"
+    id = db.Column(db.Integer, primary_key=True)
+    state = db.Column(db.String(255))
+    confirmed_date = db.Column(db.DateTime)
+    state_cumulative_covid_vaccines_one_dose = db.Column(db.Float, nullable=True)
+    state_cumulative_covid_vaccines_two_dose = db.Column(db.Float, nullable=True)

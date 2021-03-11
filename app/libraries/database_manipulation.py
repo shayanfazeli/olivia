@@ -14,9 +14,28 @@ from erlab_coat.preprocessing import remove_county_word, get_cdc_data, parse_erl
     add_cumsums_to_cases_table, prepare_google_mobility_data
 from erlab_coat.meta import preprocessings, state_abbreviations
 from app.entities import Election, InfluenzaActivityLevel, GoogleMobility, Cases, Diversity, Census, StateRestaurants, \
-    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, Alcohol, ObesityAndLife, Diabetes, CollegeCovid, TweetTable1, PoliceShootingPerMonth
+    ICUBeds, CovidHospitalizations, Mortality, LandAndWater, Alcohol, ObesityAndLife, Diabetes, CollegeCovid, TweetTable1, PoliceShootingPerMonth, StateCumulativeCovidVaccines
 from app.libraries.utilities import floatify_df, floatify_dict, get_as_datetime, get_doty_as_datetime
 from app.libraries.queries import get_df_for_variable_query
+
+
+def kff_vaccine_data():
+    path_to_processed_csv = os.path.join(application_directory, '../warehouse/erlab_covid19_glance/resolution/state/kff_state_trend_data_processed.csv')
+    df = pandas.read_csv(path_to_processed_csv)
+    for i in tqdm(range(df.shape[0])):
+        row = df.iloc[i].to_dict()
+        info_bundle = {
+            'state': row['state'],
+            'confirmed_date': pandas.to_datetime(row['date']).to_pydatetime(),
+            'state_cumulative_covid_vaccines_one_dose': float(row['one_dose']),
+            'state_cumulative_covid_vaccines_two_dose': float(row['two_dose'])
+        }
+        db.session.add(StateCumulativeCovidVaccines(**info_bundle))
+
+    import pdb
+    pdb.set_trace()
+
+    db.session.commit()
 
 
 def update_police_shooting_per_month_table():

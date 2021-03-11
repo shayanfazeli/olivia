@@ -5,6 +5,8 @@ import email_validator
 import operator
 from erlab_coat.meta import label2description
 label2description['shooting_count'] = 'Police Shootings per State'
+label2description['state_cumulative_covid_vaccines_one_dose'] = 'Vaccination - State Cumulative One Dose Vaccine Counts'
+label2description['state_cumulative_covid_vaccines_two_dose'] = 'Vaccination - State Cumulative Two Dose Vaccine Counts'
 
 
 def fetch_latest_descriptions_for_choices(in_tuples):
@@ -139,7 +141,10 @@ class CoatPlotD3Form(FlaskForm):
         ('average_college_total_confirmed_count_cumsum', 'x'),
         ('average_college_medunit_confirmed_count_cumsum', 'x'),
 
-        ('shooting_count', 'x')
+        ('shooting_count', 'x'),
+
+        ('state_cumulative_covid_vaccines_one_dose', 'x'),
+        ('state_cumulative_covid_vaccines_two_dose', 'x')
 
         # - health data
         # ('obesity_change_female_2001_2009', 'x'),
@@ -350,7 +355,9 @@ class CoatPlotD3Form(FlaskForm):
         ('average_college_total_confirmed_count_cumsum', 'x'),
         ('average_college_medunit_confirmed_count_cumsum', 'x'),
 
-        ('shooting_count', 'x')
+        ('shooting_count', 'x'),
+        ('state_cumulative_covid_vaccines_one_dose', 'x'),
+        ('state_cumulative_covid_vaccines_two_dose', 'x')
         # ('obesity_change_female_2001_2009', 'x'),
         # ('obesity_change_male_2001_2009', 'x'),
         # ('obesity_prevalence_female_2011', 'x'),
@@ -558,7 +565,10 @@ class CoatPlotD3Form(FlaskForm):
         ('average_college_total_confirmed_count_cumsum', 'x'),
         ('average_college_medunit_confirmed_count_cumsum', 'x'),
 
-        ('shooting_count', 'x')
+        ('shooting_count', 'x'),
+
+        ('state_cumulative_covid_vaccines_one_dose', 'x'),
+        ('state_cumulative_covid_vaccines_two_dose', 'x')
         # ('obesity_change_female_2001_2009', 'x'),
         # ('obesity_change_male_2001_2009', 'x'),
         # ('obesity_prevalence_female_2011', 'x'),
@@ -677,6 +687,10 @@ class CoatPlotD3Form(FlaskForm):
 
         if (self.resolution.data == 'state') and not (self.county_filter.data == ''):
             self.county_filter.errors = ["You cannot set county filters when the resolution is state-level."]
+            return False
+
+        if (self.county_filter.data == '') and (self.state_filter.data == '') and (self.resolution == 'counties'):
+            self.county_filter.errors = ["Monitoring all counties across all times results in too much data to handle by the browsers. Please provide a filter."]
             return False
 
         return True
