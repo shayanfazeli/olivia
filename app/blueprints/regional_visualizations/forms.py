@@ -7,6 +7,9 @@ from erlab_coat.meta import label2description
 label2description['shooting_count'] = 'Police Shootings per State'
 label2description['state_cumulative_covid_vaccines_one_dose'] = 'Vaccination - State Cumulative One Dose Vaccine Counts'
 label2description['state_cumulative_covid_vaccines_two_dose'] = 'Vaccination - State Cumulative Two Dose Vaccine Counts'
+label2description['confirmed_count'] = 'Daily Confirmed County Cases'
+label2description['death_count'] = 'Daily County Deaths due to COVID-19'
+label2description['recovered_count'] = 'Daily County Recoveries from COVID-19'
 
 
 def fetch_latest_descriptions_for_choices(in_tuples):
@@ -651,6 +654,9 @@ class CoatPlotD3Form(FlaskForm):
         ('confirmed_count_cumsum', 'Cumulative Confirmed COVID-19 Cases'),
         ('death_count_cumsum', 'Cumulative Deaths due to COVID-19'),
         ('recovered_count_cumsum', 'Cumulative Recoveries from COVID-19'),
+        ('confirmed_count', 'Daily Confirmed COVID-19 Cases'),
+        ('death_count', 'Daily Deaths due to COVID-19'),
+        ('recovered_count', 'Daily Recoveries from COVID-19'),
     ]
     y_choices = fetch_latest_descriptions_for_choices(y_choices)
     y_choices.sort(key=operator.itemgetter(1))
@@ -679,6 +685,10 @@ class CoatPlotD3Form(FlaskForm):
         if not super(CoatPlotD3Form, self).validate():
             return False
 
+        if (self.county_filter.data == '') and (self.state_filter.data == '') and (self.resolution.data == 'counties'):
+            self.county_filter.errors = ["Monitoring all counties across all times results in too much data to handle by the browsers. Please provide a filter."]
+            return False
+
         if (self.x_var.data == self.color_var.data) and (self.color_var.data == self.size_var.data):
             self.x_var.errors += ["This choice cannot be the same as two other choices."]
             self.color_var.errors += ["This choice cannot be the same as two other choices."]
@@ -687,10 +697,6 @@ class CoatPlotD3Form(FlaskForm):
 
         if (self.resolution.data == 'state') and not (self.county_filter.data == ''):
             self.county_filter.errors = ["You cannot set county filters when the resolution is state-level."]
-            return False
-
-        if (self.county_filter.data == '') and (self.state_filter.data == '') and (self.resolution == 'counties'):
-            self.county_filter.errors = ["Monitoring all counties across all times results in too much data to handle by the browsers. Please provide a filter."]
             return False
 
         return True

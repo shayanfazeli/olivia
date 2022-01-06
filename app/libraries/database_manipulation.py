@@ -506,6 +506,8 @@ def update_dynamic_tables(path=os.path.abspath(os.path.join(application_director
         'confirmed_count_cumsum', 'death_count_cumsum', 'recovered_count_cumsum',
         'confirmed_count_cumsum_per100k', 'death_count_cumsum_per100k', 'recovered_count_cumsum_per100k',
     ]
+
+    print("querying current_df...")
     current_df = pandas.DataFrame(data=db.session.query(
         Cases.state,
         Cases.county,
