@@ -16,7 +16,7 @@ OLIVIA framework provides an intuitive and easy to develop framework to set up a
 and analytics engine, quickly and in an efficient manner.
 
 ## Usage
-OLIVIA is written in the [Flask](https://flask.palletsprojects.com/en/2.2.x/) framework and thus can be run accordingly or using [Gunicorn](https://gunicorn.org/).
+OLIVIA follows [an earlier work of ours](https://arxiv.org/abs/2006.05276) and is written in the [Flask](https://flask.palletsprojects.com/en/2.2.x/) framework following  and thus can be run accordingly or using [Gunicorn](https://gunicorn.org/).
 
 ## Citation
 Please use the following reference for citing this work:
