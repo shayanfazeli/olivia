@@ -31,3 +31,8 @@ Please use the following reference for citing this work:
   organization={IEEE}
 }
 ```
+
+
+## Additional Resources
+* OLIVIA's dataset software - `olivia_dataset`: [view](https://shayanfazeli.github.io/olivia_dataset/Readme.html#introduction)
+* Mockingbird - Corpus of US Institutional tweets on COVID-19: [view](https://github.com/shayanfazeli/mockingbird_app)
