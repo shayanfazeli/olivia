@@ -1,8 +1,8 @@
 # OLIVIA: Simplified Public Health-focused Spatio-temporal Monitoring
 
-__Remark__: OLIVIA's website [olivia.cs.ucla.edu](olivia.cs.ucla.edu) demos the interface, nonetheless, OLIVIA is currently retired. Nonetheless,
+__Remark__: OLIVIA's website [olivia.cs.ucla.edu](http://olivia.cs.ucla.edu) demos the interface, nonetheless, OLIVIA is currently retired. Nonetheless,
 given that the source code and data is available, one should be able to deploy a custom version of it easily.
-Additionally, we have been collaborating with the Public Health Department at UCLA in creating the CDCF-founded community-centered surveillance system of [Project ReFOCUS](www.projectrefocus.com).
+Additionally, we have been collaborating with the Public Health Department at UCLA in creating the CDCF-founded community-centered surveillance system of [Project ReFOCUS](http://projectrefocus.com).
 
 ## Introduction
 This repository contains the publicly accessible source code for the [OLIVIA](https://dailybruin.com/2020/05/21/ucla-team-compiles-coronavirus-related-data-creates-statistical-modeling-tool) framework.
